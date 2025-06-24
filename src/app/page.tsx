@@ -1,103 +1,257 @@
+"use client";
+
+import { useState, useRef } from "react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { firestore, storage } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { Send, ImagePlus, Smile, MapPin, X, Loader2, Image as ImageIcon } from "lucide-react";
+import AppNavbar from "@/components/Navbar";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import { v4 as uuidv4 } from 'uuid';
+import { toast } from "sonner";
 import Image from "next/image";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.match('image.*')) {
+        toast.error("Invalid File", {
+          description: "Please upload an image file"
+        });
+        return;
+      }
+      
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File Too Large", {
+          description: "Maximum image size is 5MB"
+        });
+        return;
+      }
+
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    const promise = new Promise(async (resolve, reject) => {
+      try {
+        const user = auth.currentUser;
+        if (!user) throw new Error("User not authenticated");
+
+        let imageUrl = null;
+
+        // Upload image to Firebase Storage if selected
+        if (selectedImage) {
+          const imageRef = ref(storage, `posts/${user.uid}/${uuidv4()}`);
+          await uploadBytes(imageRef, selectedImage);
+          imageUrl = await getDownloadURL(imageRef);
+        }
+
+        // Save post data to Firestore
+        await addDoc(collection(firestore, "posts"), {
+          uid: user.uid,
+          displayName: user.displayName || "Anonymous",
+          photoURL: user.photoURL || null,
+          title,
+          content,
+          imageUrl,
+          likes: [],
+          comments: [],
+          createdAt: serverTimestamp(),
+        });
+
+        // Reset form
+        setTitle("");
+        setContent("");
+        removeImage();
+        resolve("Post published successfully");
+      } catch (error) {
+        console.error("Error creating post:", error);
+        reject(error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    });
+
+    toast.promise(promise, {
+      loading: 'Publishing your post...',
+      success: (data) => {
+        return `Post published successfully`;
+      },
+      error: (error) => {
+        return 'Failed to publish post. Please try again.';
+        console.error("Error creating post:", error);
+      },
+    });
+  };
+
+  return (
+    <ProtectedRoute>
+      <AppNavbar />
+      <main className="flex flex-col items-center justify-start min-h-screen pt-24 px-4 pb-12 bg-gradient-to-b from-muted/20 to-background">
+        <Card className="w-full max-w-2xl border shadow-sm rounded-xl overflow-hidden">
+          <CardHeader className="p-6 border-b">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-primary/10">
+                <ImageIcon className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-foreground">Create Post</h3>
+                <p className="text-sm text-muted-foreground">
+                  Share your thoughts with the community
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+
+          <form onSubmit={handleSubmit}>
+            <CardContent className="p-6 space-y-5">
+              <div className="space-y-2">
+                <label htmlFor="post-title" className="text-sm font-medium text-foreground">
+                  Title
+                </label>
+                <Input
+                  id="post-title"
+                  placeholder="Give your post a title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="text-base rounded-lg h-11"
+                  required
+                  maxLength={100}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="post-content" className="text-sm font-medium text-foreground">
+                  Content
+                </label>
+                <Textarea
+                  id="post-content"
+                  placeholder="What would you like to share?"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  className="min-h-[160px] text-base rounded-lg"
+                  required
+                  maxLength={500}
+                />
+                <div className="flex justify-end">
+                  <span className="text-xs text-muted-foreground">
+                    {content.length}/500 characters
+                  </span>
+                </div>
+              </div>
+
+              {imagePreview && (
+                <div className="relative overflow-hidden rounded-lg border border-muted bg-muted/50">
+                  <Image
+                    width="50"
+                    height="30"
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-auto max-h-96 object-contain"
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={removeImage}
+                    className="absolute top-2 right-2 bg-background/80 hover:bg-background"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between">
+                <div className="flex gap-2">
+                  <label htmlFor="image-upload" className="cursor-pointer">
+                    <input
+                      ref={fileInputRef}
+                      title="Upload Image"
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={triggerFileInput}
+                    className="gap-2"
+                  >
+                    <ImagePlus className="h-4 w-4" />
+                    {selectedImage ? "Change" : "Add Image"}
+                  </Button>
+                  
+                  <Button type="button" variant="outline" size="sm" className="gap-2">
+                    <Smile className="h-4 w-4" />
+                    Emoji
+                  </Button>
+                  
+                  <Button type="button" variant="outline" size="sm" className="gap-2">
+                    <MapPin className="h-4 w-4" />
+                    Location
+                  </Button>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isSubmitting || !title || !content}
+                className="w-full h-11 gap-2 text-base font-medium"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Publishing...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" />
+                    Publish Post
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </form>
+        </Card>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    </ProtectedRoute>
   );
 }
