@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 
 
@@ -33,7 +34,7 @@ export default function ProfilePage() {
     if (!user) return null;
 
   return (
-    <>
+    <ProtectedRoute>
       <AppNavbar />
       <div className="flex justify-center items-start min-h-screen pt-20 pb-10 bg-gradient-to-b from-gray-50 to-gray-100">
         <div className="w-full max-w-2xl space-y-6 px-4">
@@ -50,7 +51,7 @@ export default function ProfilePage() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h2 className="text-2xl font-bold text-gray-800">
-                        {user.displayName ?? "Anonymous"}
+                        {user.displayName || "Anonymous"}
                       </h2>
                       <p className="text-muted-foreground">
                         @{user.email?.split("@")[0]}
@@ -105,6 +106,6 @@ export default function ProfilePage() {
           </Card>
         </div>
       </div>
-    </>
+    </ProtectedRoute>
   );
 }

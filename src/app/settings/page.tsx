@@ -3,10 +3,12 @@
 import { Construction, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function UnderConstruction() {
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen px-6 text-center bg-gradient-to-br from-muted/40 to-background">
+    <ProtectedRoute>
+      <main className="flex flex-col items-center justify-center min-h-screen px-6 text-center bg-gradient-to-br from-muted/40 to-background">
       <div className="max-w-md w-full space-y-6">
         <div className="flex flex-col items-center gap-3">
           <Construction className="h-12 w-12 text-primary" />
@@ -29,5 +31,6 @@ export default function UnderConstruction() {
         </div>
       </div>
     </main>
+    </ProtectedRoute>
   );
 }
