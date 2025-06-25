@@ -239,15 +239,15 @@ export default function FeedPage() {
                   {posts.find(p => p.id === openComments)?.comments?.map((comment, i) => (
                     <div key={i} className="flex gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={comment.photoURL ?? ""} />
+                        <AvatarImage src={user.photoURL ?? ""} />
                         <AvatarFallback>
-                          {comment.displayName?.[0]?.toUpperCase() || "U"}
+                          {user.displayName?.[0]?.toUpperCase() || "U"}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <h4 className="font-medium">
-                            {comment.displayName || "Anonymous"}
+                            {user.displayName || "Anonymous"}
                           </h4>
                           <span className="text-xs text-muted-foreground">
                             {formatDate(comment.createdAt)}
