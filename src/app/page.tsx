@@ -121,9 +121,9 @@ export default function Home() {
   return (
     <ProtectedRoute>
       <AppNavbar />
-      <main className="flex flex-col items-center justify-start min-h-screen pt-24 px-4 pb-12 bg-gradient-to-b from-muted/20 to-background">
+      <main className="flex flex-col items-center justify-start max-h-screen pt-12 px-4 pb-12">
         <Card className="w-full max-w-2xl border shadow-sm rounded-xl overflow-hidden">
-          <CardHeader className="p-6 border-b">
+          <CardHeader className="px-6 border-none">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-full bg-primary/10">
                 <ImageIcon className="h-5 w-5 text-primary" />
@@ -139,24 +139,9 @@ export default function Home() {
 
           <form onSubmit={handleSubmit}>
             <CardContent className="p-6 space-y-5">
-              <div className="space-y-2">
-                <label htmlFor="post-title" className="text-sm font-medium text-foreground">
-                  Title
-                </label>
-                <Input
-                  id="post-title"
-                  placeholder="Give your post a title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="text-base rounded-lg h-11"
-                  required
-                  maxLength={100}
-                />
-              </div>
-
-              <div className="space-y-2">
+              <div className="">
                 <label htmlFor="post-content" className="text-sm font-medium text-foreground">
-                  Content
+                  Caption
                 </label>
                 <Textarea
                   id="post-content"
@@ -218,12 +203,6 @@ export default function Home() {
                     <ImagePlus className="h-4 w-4" />
                     {selectedImage ? "Change" : "Add Image"}
                   </Button>
-                  
-                  <Button type="button" variant="outline" size="sm" className="gap-2">
-                    <Smile className="h-4 w-4" />
-                    Emoji
-                  </Button>
-                  
                   <Button type="button" variant="outline" size="sm" className="gap-2">
                     <MapPin className="h-4 w-4" />
                     Location

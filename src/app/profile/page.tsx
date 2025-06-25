@@ -36,7 +36,7 @@ export default function ProfilePage() {
   return (
     <ProtectedRoute>
       <AppNavbar />
-      <div className="flex justify-center items-start min-h-screen pt-20 pb-10 bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="flex justify-center items-start min-h-screen pt-12 pb-10">
         <div className="w-full max-w-2xl space-y-6 px-4">
           {/* Profile Header */}
           <Card className="shadow-lg rounded-xl overflow-hidden">
