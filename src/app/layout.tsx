@@ -1,15 +1,18 @@
 import { Toaster } from "@/components/ui/sonner";
-import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import type { Metadata } from "next";
+import "./globals.css";
 
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Social Platform",
+  title: "BeamIt",
   description: "A student-built social media platform",
+  icons: {
+    icon: "/logo.jpg"
+  }
 };
 
 export default function RootLayout({

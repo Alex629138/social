@@ -29,8 +29,13 @@ export default function Navbar() {
     <nav className="w-full border-b border-border bg-background px-4 py-3 shadow-sm">
       <div className="mx-auto max-w-6xl flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="text-xl font-bold text-primary">
-          SocialPlatform
+        <Link href="/" className="text-2xl font-bold text-primary flex items-center">
+          <img
+            width="36"
+            height="36"
+            src="/logo.jpg" 
+            alt="Logo" />
+          BeamIt
         </Link>
 
         {/* Desktop Nav */}
@@ -64,7 +69,7 @@ export default function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="text-red-500">
                   <LogOut className="w-4 h-4 mr-2" />
-                  <Link href="/logout">
+                  <Link href="/login">
                     Logout
                   </Link>
                 </DropdownMenuItem>

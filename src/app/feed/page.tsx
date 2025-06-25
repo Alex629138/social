@@ -6,18 +6,12 @@ import { firestore, db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, Heart, MessageCircle, MoreHorizontal, Send } from "lucide-react";
-import AppNavbar from "@/components/Navbar";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import AppNavbar from "@/components/Navbar";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 type Post = {
   id: string;
@@ -122,7 +116,7 @@ export default function FeedPage() {
   return (
     <ProtectedRoute>
       <AppNavbar />
-      <main className="pt-24 px-4 pb-12 min-h-screen bg-gradient-to-b from-muted/30 to-background max-w-3xl mx-auto">
+      <main className="pt-12 px-4 pb-12 min-h-screen max-w-3xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Community Feed</h1>
 
         {loading ? (
@@ -153,9 +147,6 @@ export default function FeedPage() {
                       {formatDate(post.createdAt)}
                     </p>
                   </div>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
                 </CardHeader>
 
                 <CardContent className="px-6 pb-4 space-y-3">
@@ -239,15 +230,15 @@ export default function FeedPage() {
                   {posts.find(p => p.id === openComments)?.comments?.map((comment, i) => (
                     <div key={i} className="flex gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={user.photoURL ?? ""} />
+                        <AvatarImage src={comment.photoURL ?? ""} />
                         <AvatarFallback>
-                          {user.displayName?.[0]?.toUpperCase() || "U"}
+                          {comment.displayName?.[0]?.toUpperCase() || "U"}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <h4 className="font-medium">
-                            {user.displayName || "Anonymous"}
+                            {comment.displayName || "Anonymous"}
                           </h4>
                           <span className="text-xs text-muted-foreground">
                             {formatDate(comment.createdAt)}
