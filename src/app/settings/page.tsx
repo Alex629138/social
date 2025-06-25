@@ -116,8 +116,6 @@ export default function UnderConstruction() {
                 <Button 
                   variant="default" 
                   className="flex items-center gap-2 shadow-lg"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                   asChild
                 >
                   <motion.div>
