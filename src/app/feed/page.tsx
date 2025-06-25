@@ -194,7 +194,20 @@ export default function FeedPage() {
                       variant="ghost"
                       size="sm"
                       className="text-sm flex gap-1 items-center px-0"
-                      onClick={() => toggleLike(post.id, post.likes)}
+                      onClick={() => {
+                        toggleLike(post.id, post.likes);
+                        notifyUser({
+                          userId: post.uid,
+                          type: "like",
+                          postId: post.id,
+                          fromUser: {
+                            uid: user.uid,
+                            displayName: user.displayName || "Anonymous",
+                            photoURL: user.photoURL || "",
+                          },
+                        });
+                      }}
+                      
                     >
                       <Heart className={`w-4 h-4 ${post.likes?.includes(user.uid) ? "text-red-500 fill-red-500" : ""}`} />
                       <span>{post.likes?.length || 0}</span>
@@ -235,7 +248,19 @@ export default function FeedPage() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => addComment(post.id)}
+                      onClick={() => {
+                        addComment(post.id);
+                        notifyUser({
+                          userId: post.uid,
+                          type: "comment",
+                          postId: post.id,
+                          fromUser: {
+                            uid: user.uid,
+                            displayName: user.displayName || "Anonymous",
+                            photoURL: user.photoURL || "",
+                          },
+                        });
+                      }}
                       disabled={!commentInputs[post.id]?.trim()}
                     >
                       <Send className="w-4 h-4" />
