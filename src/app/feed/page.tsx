@@ -248,19 +248,24 @@ export default function FeedPage() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => {
-                        addComment(post.id);
-                        notifyUser({
-                          userId: post.uid,
-                          type: "comment",
-                          postId: post.id,
-                          fromUser: {
-                            uid: user.uid,
-                            displayName: user.displayName || "Anonymous",
-                            photoURL: user.photoURL || "",
-                          },
-                        });
+                      onClick={async () => {
+                        await addComment(post.id);
+                        const content = commentInputs[post.id]?.trim();
+                        if (content) {
+                          await notifyUser({
+                            userId: post.uid,
+                            type: "comment",
+                            postId: post.id,
+                            fromUser: {
+                              uid: user.uid,
+                              displayName: user.displayName || "Anonymous",
+                              photoURL: user.photoURL || "",
+                            },
+                            content,
+                          });
+                        }
                       }}
+                      
                       disabled={!commentInputs[post.id]?.trim()}
                     >
                       <Send className="w-4 h-4" />
@@ -326,7 +331,24 @@ export default function FeedPage() {
                     />
                     <Button
                       size="sm"
-                      onClick={() => addComment(openComments)}
+                      onClick={async () => {
+                        const content = commentInputs[openComments]?.trim();
+                        if (!content || !user?.uid) return;
+
+                        await addComment(openComments); 
+
+                        await notifyUser({
+                          userId: posts.find(p => p.id === openComments)?.uid || "",
+                          type: "comment",
+                          postId: openComments,
+                          fromUser: {
+                            uid: user.uid,
+                            displayName: user.displayName || "Anonymous",
+                            photoURL: user.photoURL || "",
+                          },
+                          content,
+                        });
+                      }}
                       disabled={!commentInputs[openComments]?.trim()}
                     >
                       <Send className="w-4 h-4" />

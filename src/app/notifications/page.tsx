@@ -1,21 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import { collection, query, where, orderBy, onSnapshot, updateDoc, doc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2 } from "lucide-react";
+import { Loader2, Bell, BellOff, Heart, MessageCircle, X, Check } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AppNavbar from "@/components/Navbar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
 export default function NotificationsPage() {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showUnreadOnly, setShowUnreadOnly] = useState(false);
 
   useEffect(() => {
     if (!user) return;
+    
     const q = query(
       collection(firestore, "notifications"),
       where("userId", "==", user.uid),
@@ -25,48 +32,161 @@ export default function NotificationsPage() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setNotifications(data);
+      setUnreadCount(data.filter(n => !n.read).length);
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, [user]);
 
+  const markAsRead = async (notificationId: string) => {
+    await updateDoc(doc(firestore, "notifications", notificationId), {
+      read: true
+    });
+  };
+
+  const markAllAsRead = async () => {
+    const unreadNotifications = notifications.filter(n => !n.read);
+    await Promise.all(
+      unreadNotifications.map(n => 
+        updateDoc(doc(firestore, "notifications", n.id), { read: true })
+    ));
+  };
+
+  const filteredNotifications = showUnreadOnly 
+    ? notifications.filter(n => !n.read) 
+    : notifications;
+
+  const formatTime = (timestamp: any) => {
+    if (!timestamp?.toDate) return "Just now";
+    const date = timestamp.toDate();
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return "Just now";
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  };
+
   if (!user) return null;
 
   return (
     <>
       <AppNavbar />
-      <main className="pt-24 px-4 pb-12 min-h-screen bg-gradient-to-b from-muted/30 to-background">
-        <h1 className="text-2xl font-bold mb-6">Notifications</h1>
+      <main className="pt-12 px-4 pb-12 min-h-screen bg-gradient-to-b from-muted/10 to-background max-w-3xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Bell className="h-5 w-5 text-primary" />
+            Notifications
+            {unreadCount > 0 && (
+              <Badge className="ml-2" variant="secondary">
+                {unreadCount} new
+              </Badge>
+            )}
+          </h1>
+          
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowUnreadOnly(!showUnreadOnly)}
+              className="gap-2"
+            >
+              {showUnreadOnly ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
+              {showUnreadOnly ? "Show all" : "Unread only"}
+            </Button>
+            
+            {unreadCount > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={markAllAsRead}
+                className="text-primary hover:text-primary"
+              >
+                Mark all as read
+              </Button>
+            )}
+          </div>
+        </div>
 
         {loading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
           </div>
-        ) : notifications.length === 0 ? (
-          <p className="text-muted-foreground">No notifications yet.</p>
-        ) : (
-          <div className="space-y-4">
-            {notifications.map((n) => (
-              <Link key={n.id} href={`/posts/${n.postId}`} className="block p-4 bg-white rounded-xl shadow-md hover:bg-gray-50 transition">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={n.fromPhotoURL || "/placeholder.png"} />
-                    <AvatarFallback>{n.fromDisplayName?.[0] || "U"}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm text-foreground">
-                      <span className="font-medium">{n.fromDisplayName}</span>{" "}
-                      {n.type === "like" ? "liked your post." : `commented: "${n.content}"`}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {n.createdAt?.toDate().toLocaleString() || "Just now"}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            ))}
+        ) : filteredNotifications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <BellOff className="h-10 w-10 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">
+              {showUnreadOnly 
+                ? "No unread notifications" 
+                : "No notifications yet"}
+            </p>
           </div>
+        ) : (
+            <div className="gap-10">
+            <AnimatePresence>
+              {filteredNotifications.map((n) => (
+                <Link key={n.id} href={`/posts/${n.postId}`}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    transition={{ duration: 0.2 }}
+                    className={cn(
+                      "p-4 rounded-xl transition-all border mb-4",
+                      n.read 
+                        ? "bg-muted/30 hover:bg-muted/50" 
+                        : "bg-white shadow-sm hover:shadow-md"
+                    )}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="relative">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={n.fromPhotoURL || "/placeholder.png"} />
+                          <AvatarFallback>{n.fromDisplayName?.[0] || "U"}</AvatarFallback>
+                        </Avatar>
+                        <div className="absolute -top-1 -right-1 p-1 bg-background rounded-full">
+                          {n.type === "like" ? (
+                            <Heart className="h-4 w-4 text-red-500 fill-red-500" />
+                          ) : (
+                            <MessageCircle className="h-4 w-4 text-blue-500" />
+                          )}
+                        </div>
+                      </div>
+          
+                      <div className="flex-1">
+                        <p className="text-sm text-foreground">
+                          <span className="font-medium">{n.fromDisplayName}</span>{" "}
+                          {n.type === "like"
+                            ? "liked your post"
+                            : `commented: "${n.content}"`}
+                        </p>
+                        <div className="flex items-center justify-between mt-0">
+                          <p className="text-xs text-muted-foreground">
+                            {formatTime(n.createdAt)}
+                          </p>
+                          {!n.read && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                markAsRead(n.id);
+                              }}
+                            >
+                              <Check className="h-3 w-3" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </Link>
+              ))}
+            </AnimatePresence>
+          </div>          
         )}
       </main>
     </>
