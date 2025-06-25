@@ -15,6 +15,7 @@ const links = [
   { href: "/", label: "Home" },
   { href: "/feed", label: "Feed" },
   { href: "/profile", label: "Profile" },
+  { href: "/notifications", label: "Notifications" },
 ];
 
 export default function Navbar() {

@@ -17,7 +17,6 @@ import { toast } from "sonner";
 import Image from "next/image";
 
 export default function Home() {
-  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -85,7 +84,6 @@ export default function Home() {
           uid: user.uid,
           displayName: user.displayName || "Anonymous",
           photoURL: user.photoURL || null,
-          title,
           content,
           imageUrl,
           likes: [],
@@ -93,8 +91,6 @@ export default function Home() {
           createdAt: serverTimestamp(),
         });
 
-        // Reset form
-        setTitle("");
         setContent("");
         removeImage();
         resolve("Post published successfully");
@@ -212,7 +208,7 @@ export default function Home() {
 
               <Button
                 type="submit"
-                disabled={isSubmitting || !title || !content}
+                disabled={isSubmitting || !content}
                 className="w-full h-11 gap-2 text-base font-medium"
               >
                 {isSubmitting ? (

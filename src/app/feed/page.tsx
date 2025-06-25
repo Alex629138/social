@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { arrayRemove, arrayUnion, collection, doc, getDoc, onSnapshot, orderBy, query, Timestamp, updateDoc } from "firebase/firestore";
+import { arrayRemove, arrayUnion, collection, doc, addDoc, getDoc, onSnapshot, orderBy, query, serverTimestamp, Timestamp, updateDoc } from "firebase/firestore";
 import { firestore, db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -109,6 +109,35 @@ export default function FeedPage() {
     } else {
       return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
     }
+  };
+
+  const notifyUser = async ({
+    userId,
+    type, 
+    postId,
+    fromUser,
+    content = ""
+  }: {
+    userId: string;
+    type: "like" | "comment";
+    postId: string;
+    fromUser: { uid: string; displayName: string; photoURL: string };
+    content?: string;
+  }) => {
+    if (userId === fromUser.uid) return; 
+  
+    await addDoc(collection(firestore, "notifications"), {
+      userId,
+      type,
+      postId,
+      fromUserId: fromUser.uid,
+      fromDisplayName: fromUser.displayName,
+      fromPhotoURL: fromUser.photoURL,
+      content,
+      createdAt: serverTimestamp(),
+      read: false
+    });
+    console.log("Notifying", userId, type, postId);
   };
 
   if (!user) return null;
