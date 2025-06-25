@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { collection, query, where, orderBy, onSnapshot, updateDoc, doc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, Bell, BellOff, Heart, MessageCircle, X, Check } from "lucide-react";
+import { Loader2, Bell, BellOff, Heart, MessageCircle, Check } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AppNavbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ export default function NotificationsPage() {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as any[];
       setNotifications(data);
       setUnreadCount(data.filter(n => !n.read).length);
       setLoading(false);
