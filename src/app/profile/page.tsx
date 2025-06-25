@@ -48,6 +48,8 @@ export default function ProfilePage() {
     fetchData();
   }, [user]);
 
+  if (!user) return;
+
   const handleSave = async () => {
     try {
       await updateDoc(doc(db, "users", user.uid), editData);
