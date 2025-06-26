@@ -114,30 +114,32 @@ export default function ChatPage() {
             </div>
           ) : (
             messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${
-                  msg.senderId === user.uid ? "justify-end" : "justify-start"
-                }`}
-              >
                 <div
-                  className={`max-w-xs px-4 py-3 rounded-xl ${
-                    msg.senderId === user.uid
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
-                  }`}
+                  key={msg.id}
+                  className={`flex flex-col ${
+                    msg.senderId === user.uid ? "items-end" : "items-start"
+                  } mb-3`}
                 >
-                  <p className="text-sm">{msg.text}</p>
-                  <p className={`text-xs mt-1 ${
-                    msg.senderId === user.uid 
-                      ? "text-primary-foreground/70" 
-                      : "text-muted-foreground"
-                  }`}>
+                  <div
+                    className={`max-w-xs px-4 py-3 rounded-xl ${
+                      msg.senderId === user.uid
+                        ? "bg-primary text-primary-foreground rounded-tr-none"
+                        : "bg-muted rounded-tl-none"
+                    }`}
+                  >
+                    <p className="text-sm">{msg.text}</p>
+                  </div>
+                  <p 
+                    className={`text-[0.6rem] mt-1 ${
+                      msg.senderId === user.uid 
+                        ? "text-muted-foreground text-right" 
+                        : "text-muted-foreground"
+                    }`}
+                  >
                     {msg.createdAt?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
-              </div>
-            ))
+              ))
           )}
           <div ref={messagesEndRef} />
         </div>
