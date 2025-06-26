@@ -160,8 +160,11 @@ export default function NotificationsPage() {
                           <span className="font-medium">{n.fromDisplayName}</span>{" "}
                           {n.type === "like"
                             ? "liked your post"
-                            : `commented: "${n.content}"`}
+                            : n.type === "comment"
+                            ? `commented: "${n.content}"`
+                            : "followed you"}
                         </p>
+
                         <div className="flex items-center justify-between mt-0">
                           <p className="text-xs text-muted-foreground">
                             {formatTime(n.createdAt)}

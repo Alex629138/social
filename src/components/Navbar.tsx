@@ -14,8 +14,10 @@ import { auth } from "@/lib/firebase";
 const links = [
   { href: "/", label: "Home" },
   { href: "/feed", label: "Feed" },
-  { href: "/profile", label: "Profile" },
+  { href: "/messages", label: "Messages" },
   { href: "/notifications", label: "Notifications" },
+  { href: "/people", label: "People" },
+  { href: "/profile", label: "Profile" },
 ];
 
 export default function Navbar() {
@@ -36,7 +38,7 @@ export default function Navbar() {
             height="36"
             src="/logo.jpg" 
             alt="Logo" />
-          BeamIt
+          FeedLink
         </Link>
 
         {/* Desktop Nav */}

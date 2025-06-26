@@ -214,26 +214,20 @@ export default function ProfilePage() {
                     </Button>
                   </>
                 ) : (
-                  <>
-                    <Button variant="outline" className="gap-2">
-                      <Share2 className="h-4 w-4" />
-                      Share
-                    </Button>
-                    <div className="flex gap-2">
-                      <Button variant="outline" className="gap-2">
-                        <MessageSquare className="h-4 w-4" />
-                        Message
-                      </Button>
-                      <Button 
-                        variant="default" 
-                        className="gap-2"
-                        onClick={() => setIsEditing(true)}
-                      >
-                        <Edit className="h-4 w-4" />
-                        Edit Profile
-                      </Button>
+                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                    <div>
+                      <span className="font-bold text-foreground">
+                        {profileData?.followers?.length ?? 0}
+                      </span>{" "}
+                      Followers
                     </div>
-                  </>
+                    <div>
+                      <span className="font-bold text-foreground">
+                        {profileData?.following?.length ?? 0}
+                      </span>{" "}
+                      Following
+                    </div>
+                  </div>
                 )}
               </CardFooter>
             </Card>

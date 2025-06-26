@@ -137,7 +137,6 @@ export default function FeedPage() {
       createdAt: serverTimestamp(),
       read: false
     });
-    console.log("Notifying", userId, type, postId);
   };
 
   if (!user) return null;

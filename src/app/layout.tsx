@@ -8,7 +8,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "BeamIt",
+  title: "FeedLink",
   description: "A student-built social media platform",
   icons: {
     icon: "/logo.jpg"
