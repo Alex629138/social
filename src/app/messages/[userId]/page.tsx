@@ -40,6 +40,22 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    const fetchRecipient = async () => {
+      if (!userId || typeof userId !== "string") return;
+      const docSnap = await getDoc(doc(firestore, "users", userId));
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setRecipient({
+          uid: docSnap.id,
+          displayName: data.displayName,
+          photoURL: data.photoURL || "",
+        });
+      }
+    };
+    fetchRecipient();
+  }, [userId]);
+
   // Fetch messages
   useEffect(() => {
     if (!user?.uid || typeof userId !== "string") return;
