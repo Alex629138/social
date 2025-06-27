@@ -5,7 +5,7 @@ import { arrayRemove, arrayUnion, collection, doc, addDoc, getDoc, onSnapshot, o
 import { firestore, db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Heart, MessageCircle, Send, Rss, RadioTower } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Send, RadioTower } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -165,7 +165,7 @@ export default function FeedPage() {
                 key={post.id}
                 className="border shadow-sm rounded-xl"
               >
-                <CardHeader className="px-6 pt-4 pb-2 flex items-center gap-3">
+                <CardHeader className="px-6 py-1 flex items-center gap-3">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={post.photoURL ?? "/placeholder.png"} alt="User Avatar" />
                     <AvatarFallback>
@@ -213,7 +213,7 @@ export default function FeedPage() {
                       }}
                       
                     >
-                      <Heart className={`w-4 h-4 ${post.likes?.includes(user.uid) ? "text-red-500 fill-red-500" : ""}`} />
+                      <Heart className={`w-4 h-4 ${post.likes?.includes(user.uid) ? "text-yellow-500 fill-yellow-500" : ""}`} />
                       <span>{post.likes?.length || 0}</span>
                     </Button>
                     
@@ -228,9 +228,9 @@ export default function FeedPage() {
                     </Button>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-2">
+                  <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.photoURL ?? ""} />
+                      <AvatarImage src={user.photoURL ?? "/placeholder.png"} />
                       <AvatarFallback>
                         {user.displayName?.[0]?.toUpperCase() || "Y"}
                       </AvatarFallback>
@@ -252,6 +252,7 @@ export default function FeedPage() {
                     <Button
                       size="sm"
                       variant="ghost"
+                      className="bg-yellow-500 hover:bg-primary hover:text-white"
                       onClick={async () => {
                         await addComment(post.id);
                         const content = commentInputs[post.id]?.trim();
@@ -293,7 +294,7 @@ export default function FeedPage() {
                   {posts.find(p => p.id === openComments)?.comments?.map((comment, i) => (
                     <div key={i} className="flex gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={comment.photoURL ?? ""} />
+                        <AvatarImage src={comment.photoURL ?? profileData.photoURL} />
                         <AvatarFallback>
                           {comment.displayName?.[0]?.toUpperCase() || "U"}
                         </AvatarFallback>
@@ -301,7 +302,7 @@ export default function FeedPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <h4 className="font-medium">
-                            {comment.displayName || "Anonymous"}
+                            {comment.displayName || profileData.email || "Anonymous"}
                           </h4>
                           <span className="text-xs text-muted-foreground">
                             {formatDate(comment.createdAt)}
@@ -335,6 +336,8 @@ export default function FeedPage() {
                     />
                     <Button
                       size="sm"
+                      variant="ghost"
+                      className="bg-yellow-500 hover:bg-primary hover:text-white"
                       onClick={async () => {
                         const content = commentInputs[openComments]?.trim();
                         if (!content || !user?.uid) return;
@@ -355,7 +358,7 @@ export default function FeedPage() {
                       }}
                       disabled={!commentInputs[openComments]?.trim()}
                     >
-                      <Send className="w-4 h-4" />
+                      <Send className="w-4 h-4 text-black hover:text-white" />
                     </Button>
                   </div>
                 </div>

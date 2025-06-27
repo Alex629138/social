@@ -109,7 +109,6 @@ export default function Home() {
       },
       error: (error) => {
         return 'Failed to publish post. Please try again.';
-        console.error("Error creating post:", error);
       },
     });
   };
@@ -125,15 +124,15 @@ export default function Home() {
                 Create A Post
               </h1>
               <p className="text-muted-foreground mb-6">
-                Chat with your friends
+                Share what&#39;s on your mind with the community!
               </p> 
             </div>
           </div>
 
           <form onSubmit={handleSubmit}>
             <div className="p-6 space-y-5">
-              <div className="flex flex-col gap-3">
-                <label htmlFor="post-content" className="text-md font-medium text-foreground">
+              <div className="flex flex-col">
+                <label htmlFor="post-content" className="text-md font-medium text-foreground mb-2">
                   Caption
                 </label>
                 <Textarea
@@ -153,7 +152,7 @@ export default function Home() {
               </div>
 
               {imagePreview && (
-                <div className="relative overflow-hidden rounded-lg border border-muted bg-muted/50">
+                <div className="relative overflow-hidden rounded-lg">
                   <Image
                     width="50"
                     height="30"
@@ -166,15 +165,15 @@ export default function Home() {
                     size="icon"
                     variant="ghost"
                     onClick={removeImage}
-                    className="absolute top-2 right-2 bg-background/80 hover:bg-background"
+                    className="absolute cursor-pointer top-2 right-2 text-white bg-primary hover:bg-gray-300"
                   >
-                    <X className="h-6 w-6" />
+                    <X className="h-6 w-6 hover:text-black" />
                   </Button>
                 </div>
               )}
 
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2">
+              <div className="flex items-center">
+                <div className="flex">
                   <label htmlFor="image-upload" className="cursor-pointer">
                     <input
                       ref={fileInputRef}
@@ -191,7 +190,8 @@ export default function Home() {
                     variant="outline"
                     size="sm"
                     onClick={triggerFileInput}
-                    className="gap-2"
+                    disabled={isSubmitting || !content}
+                    className="bg-yellow-500 hover:bg-primary hover:text-white"
                   >
                     <ImagePlus className="h-6 w-6" />
                     {selectedImage ? "Change" : "Add Image"}
@@ -202,7 +202,7 @@ export default function Home() {
               <Button
                 type="submit"
                 disabled={isSubmitting || !content}
-                className="w-full h-11 gap-2 text-base font-medium"
+                className="w-full h-11 gap-2 text-base text-black font-medium bg-yellow-500 hover:bg-primary hover:text-white"
               >
                 {isSubmitting ? (
                   <>

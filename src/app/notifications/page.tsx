@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { collection, query, where, orderBy, onSnapshot, updateDoc, doc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, Bell, BellOff, Heart, MessageCircle, Check } from "lucide-react";
+import { Loader2, Bell, BellOff, Heart, MessageCircle, Check, UserRoundPlus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AppNavbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -74,7 +74,7 @@ export default function NotificationsPage() {
   return (
     <>
       <AppNavbar />
-      <main className="md:mt-12 mt-6 px-4 pb-12 min-h-screen bg-gradient-to-b from-muted/10 to-background max-w-3xl mx-auto">
+      <main className="md:mt-12 mt-6 px-4 pb-12 min-h-screen max-w-3xl mx-auto">
         <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
         <h1 className="text-2xl font-bold flex items-center gap-2 mb-0">
             <Bell className="h-5 w-5 text-primary" />
@@ -140,49 +140,33 @@ export default function NotificationsPage() {
                         : "bg-white shadow-sm hover:shadow-md"
                     )}
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="relative">
+                    <div className="flex justify-between gap-3">
+                      <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={n.fromPhotoURL || "/placeholder.png"} />
                           <AvatarFallback>{n.fromDisplayName?.[0] || "U"}</AvatarFallback>
                         </Avatar>
-                        <div className="absolute -top-1 -right-1 p-1 bg-background rounded-full">
-                          {n.type === "like" ? (
-                            <Heart className="h-4 w-4 text-red-500 fill-red-500" />
-                          ) : (
-                            <MessageCircle className="h-4 w-4 text-blue-500" />
-                          )}
-                        </div>
-                      </div>
-          
-                      <div className="flex-1">
-                        <p className="text-sm text-foreground">
-                          <span className="font-medium">{n.fromDisplayName}</span>{" "}
-                          {n.type === "like"
-                            ? "liked your post"
-                            : n.type === "comment"
-                            ? `commented: "${n.content}"`
-                            : "followed you"}
-                        </p>
-
-                        <div className="flex items-center justify-between mt-0">
-                          <p className="text-xs text-muted-foreground">
-                            {formatTime(n.createdAt)}
+                        <div className="flex-1">
+                          <p className="text-sm text-foreground">
+                            <span className="font-medium">{n.fromDisplayName}</span>{" "}
+                            {n.type === "like"
+                              ? "liked your post"
+                              : n.type === "comment"
+                              ? `commented: "${n.content}"`
+                              : "followed you"}
                           </p>
-                          {!n.read && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                markAsRead(n.id);
-                              }}
-                            >
-                              <Check className="h-3 w-3" />
-                            </Button>
-                          )}
-                        </div>
+
+                          <div className="flex items-center justify-between mt-0">
+                            <p className="text-xs text-muted-foreground">
+                              {formatTime(n.createdAt)}
+                            </p>
+                          </div>
+                          </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {n.type === "like" && <Heart className="h-6 w-6 text-red-500 fill-red-500" />}
+                        {n.type === "comment" && <MessageCircle className="h-6 w-6 text-blue-500 fill-blue-500" />}
+                        {n.type === "follow" && <UserRoundPlus className="h-6 w-6 text-green-500 fill-green-500" />}
                       </div>
                     </div>
                   </motion.div>

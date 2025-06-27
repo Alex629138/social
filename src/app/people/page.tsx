@@ -7,13 +7,12 @@ import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import AppNavbar from "@/components/Navbar";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import { Search, UserPlus, UserCheck, Loader2, User2, UserRoundPlus, UserRoundCheck } from "lucide-react";
+import { Search, UserPlus, Loader2, UserRoundPlus, UserRoundCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import AppNavbar from "@/components/Navbar";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 type UserData = {
   uid: string;
@@ -44,6 +43,7 @@ export default function PeoplePage() {
       setLoading(false);
     } catch (error) {
       toast.error("Failed to load users");
+      console.error("Error fetching users:", error);
       setLoading(false);
     }
   };

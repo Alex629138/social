@@ -1,59 +1,52 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Edit, LogOut, Settings, MessageSquare, User, Mail, Calendar, Link, Share2, MessagesSquare, UserRoundCog } from "lucide-react";
+import { MoreVertical, Edit, Settings } from "lucide-react";
 import AppNavbar from "@/components/Navbar";
 import { Separator } from "@/components/ui/separator";
-import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Mail, Calendar, UserRoundCog } from "lucide-react";
 import { motion } from "framer-motion";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import {useUserData} from "@/hooks/useUserData";
+import { Loader2 } from "lucide-react";
 
 export default function ProfilePage() {
-  const [profileData, setProfileData] = useState<any>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({
-    displayName: "",
-    bio: "",
-    website: ""
-  });
   const { user } = useAuth();
-  const router = useRouter();
+  const { data: profileData, loading } = useUserData(user?.uid);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({ 
+    displayName: "", 
+    bio: "",
+    photoURL: ""
+  });
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!user) return;
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setProfileData(data);
-        setEditData({
-          displayName: data.displayName || user.displayName || "",
-          bio: data.bio || "",
-          website: data.website || ""
-        });
-      }
-    };
-    fetchData();
-  }, [user]);
-
-  if (!user) return;
+    if (profileData && user) {
+      setEditData({
+        displayName: profileData.displayName || user.displayName || "",
+        bio: profileData.bio || "",
+        photoURL: profileData.photoURL || user.photoURL || ""
+      });
+    }
+  }, [profileData, user]);
 
   const handleSave = async () => {
+    if (!user?.uid) return;
+
     try {
       await updateDoc(doc(db, "users", user.uid), editData);
-      setProfileData({ ...profileData, ...editData });
       setIsEditing(false);
       toast.success("Profile updated successfully");
     } catch (error) {
@@ -71,25 +64,39 @@ export default function ProfilePage() {
     });
   };
 
-  if (!user) return null;
+  if (!user || loading) {
+    return (
+      <ProtectedRoute>
+        <AppNavbar />
+        <div className="flex justify-center items-center h-screen">
+          <Loader2 className="animate-spin h-8 w-8" />
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
+  // Combine profile data with auth user data
+  const userPhotoURL = profileData?.photoURL || user.photoURL;
+  const userDisplayName = profileData?.displayName || user.displayName;
+  const userBio = profileData?.bio || "";
 
   return (
     <ProtectedRoute>
       <AppNavbar />
-      <div className="flex justify-center items-start max-w-3xl mx-auto max-h-screen md:mt-12 mt-6">
-        <div className="w-full space-y-6 px-4">
+      <div className="md:mt-12 mt-6 px-4 pb-12 max-h-screen max-w-3xl mx-auto">
+        <div className="w-full space-y-6">
           {/* Profile Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-              <div className="border-none px-0">
+              <div className="">
                 <div className="flex justify-between items-center">
-                <h1 className="flex items-center text-2xl font-bold mb-2">
-                  <UserRoundCog className="mr-2 h-6 w-6" />
-                  Profile
-                </h1>
+                  <h1 className="flex items-center text-2xl font-bold">
+                    <UserRoundCog className="mr-2 h-6 w-6" />
+                    Profile
+                  </h1>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="rounded-full">
@@ -105,15 +112,10 @@ export default function ProfilePage() {
                         {isEditing ? "Cancel Edit" : "Edit Profile"}
                       </DropdownMenuItem>
                       <DropdownMenuItem className="gap-2">
-                        <Settings className="h-4 w-4" />
-                        Settings
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        className="gap-2 text-red-500"
-                        onClick={() => router.push('/logout')}
-                      >
-                        <LogOut className="h-4 w-4" />
-                        Log out
+                        <Link href="/settings" className="flex items-center gap-2">
+                          <Settings className="h-4 w-4" />
+                          Settings
+                        </Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -123,9 +125,9 @@ export default function ProfilePage() {
               <CardContent className="p-6">
                 <div className="flex flex-col items-center gap-4 mb-6">
                   <Avatar className="h-24 w-24 border-2 border-white shadow-lg">
-                    <AvatarImage src={user.photoURL ?? "/placeholder.png"} />
+                    <AvatarImage src={userPhotoURL || "/placeholder.png"} />
                     <AvatarFallback>
-                      {user.displayName?.[0]?.toUpperCase() ?? "U"}
+                      {userDisplayName?.[0]?.toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
                   
@@ -137,7 +139,7 @@ export default function ProfilePage() {
                     />
                   ) : (
                     <h2 className="text-2xl font-bold text-center">
-                      {profileData?.displayName || user.displayName || "Anonymous"}
+                      {userDisplayName || "Anonymous"}
                     </h2>
                   )}
                   
@@ -153,12 +155,13 @@ export default function ProfilePage() {
                     <Textarea
                       placeholder="Tell us about yourself"
                       value={editData.bio}
+                      maxLength={50}
                       onChange={(e) => setEditData({...editData, bio: e.target.value})}
-                      className="min-h-[100px]"
+                      className="min-h-[70px]"
                     />
                   ) : (
                     <p className="text-center text-muted-foreground">
-                      {profileData?.bio || "No bio yet"}
+                      {userBio || "No bio yet"}
                     </p>
                   )}
 
@@ -170,31 +173,8 @@ export default function ProfilePage() {
                     
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Calendar className="h-4 w-4" />
-                      <span>Joined {formatDate(profileData?.joinedAt)}</span>
+                      <span>Joined {formatDate(profileData?.createdAt)}</span>
                     </div>
-                    
-                    {isEditing ? (
-                      <div className="flex items-center gap-2">
-                        <Link className="h-4 w-4" />
-                        <Input
-                          placeholder="Your website"
-                          value={editData.website}
-                          onChange={(e) => setEditData({...editData, website: e.target.value})}
-                        />
-                      </div>
-                    ) : profileData?.website ? (
-                      <div className="flex items-center gap-2">
-                        <Link className="h-4 w-4" />
-                        <a 
-                          href={profileData.website} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
-                        >
-                          {profileData.website}
-                        </a>
-                      </div>
-                    ) : null}
                   </div>
                 </div>
               </CardContent>
@@ -213,7 +193,7 @@ export default function ProfilePage() {
                     </Button>
                   </>
                 ) : (
-                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-6 text-sm text-muted-foreground w-full justify-center">
                     <div>
                       <span className="font-bold text-foreground">
                         {profileData?.followers?.length ?? 0}
@@ -229,6 +209,7 @@ export default function ProfilePage() {
                   </div>
                 )}
               </div>
+            
           </motion.div>
         </div>
       </div>

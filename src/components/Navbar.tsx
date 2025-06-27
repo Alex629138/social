@@ -17,7 +17,6 @@ const links = [
   { href: "/messages", label: "Messages" },
   { href: "/notifications", label: "Notifications" },
   { href: "/people", label: "People" },
-  { href: "/profile", label: "Profile" },
 ];
 
 export default function Navbar() {
@@ -48,8 +47,8 @@ export default function Navbar() {
               key={href}
               href={href}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                pathname === href ? "text-primary" : "text-muted-foreground"
+                "text-sm font-medium transition-colors",
+                pathname === href ? "text-white px-3 py-2 bg-primary rounded-md" : "text-muted-foreground hover:text-primary"
               )}
             >
               {label}
@@ -67,6 +66,9 @@ export default function Navbar() {
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/settings">Settings</Link>
                 </DropdownMenuItem>
@@ -113,14 +115,32 @@ export default function Navbar() {
             <DropdownMenuContent align="end" className="w-48">
               {links.map(({ href, label }) => (
                 <DropdownMenuItem key={href} asChild>
-                  <Link href={href}>{label}</Link>
+                  <Link 
+                    href={href}
+                    className={cn(
+                      "text-sm font-medium transition-colors",
+                      pathname === href ? "text-white px-3 py-2 bg-primary rounded-md" : "text-muted-foreground hover:text-primary"
+                    )}>
+                      {label}
+                  </Link>
                 </DropdownMenuItem>
               ))}
 
               {user ? (
                 <>
                   <DropdownMenuItem asChild>
-                    <Link href="/settings">Settings</Link>
+                    <Link 
+                      href="/settings"
+                      className="text-muted-foreground hover:text-primary">
+                        Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link 
+                      href="/profile"
+                      className="text-muted-foreground hover:text-primary">
+                        Profile
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout} className="text-red-500">
                     <LogOut className="w-4 h-4 mr-2" />
