@@ -32,7 +32,7 @@ export default function ChatPage() {
   // Scroll to bottom on new message
   useEffect(() => {
     profileScrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  });
+  }, [messages]);
 
   // Fetch messages
   useEffect(() => {
