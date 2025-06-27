@@ -34,23 +34,11 @@ type Post = {
 export default function FeedPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const [profileData, setProfileData] = useState<any>(null);
   const [commentInputs, setCommentInputs] = useState<{ [postId: string]: string }>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
+  const [commentAuthors, setCommentAuthors] = useState<Record<string, { displayName: string; photoURL?: string }>>({});
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (!user) return;
-    const fetchData = async () => {
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setProfileData(docSnap.data());
-      }
-    };
-    fetchData();
-  }, [user]);
-  
   useEffect(() => {
     const q = query(collection(firestore, "posts"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -60,10 +48,38 @@ export default function FeedPage() {
       })) as Post[];
       setPosts(postData);
       setLoading(false);
+      
+      // Fetch author data for all comments
+      fetchCommentAuthors(postData);
     });
     
     return () => unsubscribe();
   }, []);
+
+  const fetchCommentAuthors = async (posts: Post[]) => {
+    const authorIds = new Set<string>();
+    posts.forEach(post => {
+      post.comments?.forEach(comment => {
+        authorIds.add(comment.uid);
+      });
+    });
+
+    const authors: Record<string, { displayName: string; photoURL?: string }> = {};
+    for (const uid of Array.from(authorIds)) {
+      try {
+        const userDoc = await getDoc(doc(db, "users", uid));
+        if (userDoc.exists()) {
+          authors[uid] = {
+            displayName: userDoc.data().displayName || "Anonymous",
+            photoURL: userDoc.data().photoURL
+          };
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    }
+    setCommentAuthors(authors);
+  };
 
   const toggleLike = async (postId: string, currentLikes: string[] = []) => {
     if (!postId || !user?.uid) return;
@@ -211,7 +227,6 @@ export default function FeedPage() {
                           },
                         });
                       }}
-                      
                     >
                       <Heart className={`w-4 h-4 ${post.likes?.includes(user.uid) ? "text-yellow-500 fill-yellow-500" : ""}`} />
                       <span>{post.likes?.length || 0}</span>
@@ -270,7 +285,6 @@ export default function FeedPage() {
                           });
                         }
                       }}
-                      
                       disabled={!commentInputs[post.id]?.trim()}
                     >
                       <Send className="w-4 h-4" />
@@ -291,27 +305,34 @@ export default function FeedPage() {
                   <DialogTitle>Comments</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
-                  {posts.find(p => p.id === openComments)?.comments?.map((comment, i) => (
-                    <div key={i} className="flex gap-3">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={comment.photoURL ?? profileData.photoURL} />
-                        <AvatarFallback>
-                          {comment.displayName?.[0]?.toUpperCase() || "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-medium">
-                            {comment.displayName || profileData.email || "Anonymous"}
-                          </h4>
-                          <span className="text-xs text-muted-foreground">
-                            {formatDate(comment.createdAt)}
-                          </span>
+                  {posts.find(p => p.id === openComments)?.comments?.map((comment, i) => {
+                    const author = commentAuthors[comment.uid] || {
+                      displayName: comment.displayName || "Anonymous",
+                      photoURL: comment.photoURL
+                    };
+                    
+                    return (
+                      <div key={i} className="flex gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={author.photoURL ?? "/placeholder.png"} />
+                          <AvatarFallback>
+                            {author.displayName?.[0]?.toUpperCase() || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-medium">
+                              {author.displayName}
+                            </h4>
+                            <span className="text-xs text-muted-foreground">
+                              {formatDate(comment.createdAt)}
+                            </span>
+                          </div>
+                          <p className="text-sm mt-1">{comment.content}</p>
                         </div>
-                        <p className="text-sm mt-1">{comment.content}</p>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   
                   <div className="flex items-center gap-2 pt-4">
                     <Avatar className="h-10 w-10">

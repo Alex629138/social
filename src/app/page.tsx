@@ -1,15 +1,13 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { firestore, storage } from "@/lib/firebase";
 import { auth } from "@/lib/firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Send, ImagePlus, Smile, MapPin, X, Loader2, Image as ImageIcon, CirclePlus } from "lucide-react";
+import { Send, ImagePlus, X, Loader2, CirclePlus } from "lucide-react";
 import AppNavbar from "@/components/Navbar";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { v4 as uuidv4 } from 'uuid';
@@ -69,7 +67,7 @@ export default function Home() {
       try {
         const user = auth.currentUser;
         if (!user) throw new Error("User not authenticated");
-
+        
         let imageUrl = null;
 
         // Upload image to Firebase Storage if selected
@@ -112,6 +110,8 @@ export default function Home() {
       },
     });
   };
+
+  
 
   return (
     <ProtectedRoute>
