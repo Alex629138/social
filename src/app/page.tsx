@@ -9,7 +9,7 @@ import { firestore, storage } from "@/lib/firebase";
 import { auth } from "@/lib/firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Send, ImagePlus, Smile, MapPin, X, Loader2, Image as ImageIcon } from "lucide-react";
+import { Send, ImagePlus, Smile, MapPin, X, Loader2, Image as ImageIcon, CirclePlus } from "lucide-react";
 import AppNavbar from "@/components/Navbar";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { v4 as uuidv4 } from 'uuid';
@@ -117,31 +117,28 @@ export default function Home() {
   return (
     <ProtectedRoute>
       <AppNavbar />
-      <main className="flex flex-col items-center justify-start max-h-screen pt-12 px-4 pb-12">
-        <Card className="w-full max-w-2xl border shadow-sm rounded-xl overflow-hidden">
-          <CardHeader className="px-6 border-none">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-primary/10">
-                <ImageIcon className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-foreground">Create Post</h3>
-                <p className="text-sm text-muted-foreground">
-                  Share your thoughts with the community
-                </p>
-              </div>
+      <main className="md:mt-12 mt-6 px-4 pb-12 max-h-screen max-w-3xl mx-auto">
+          <div className="px-6">
+            <div className="block items-center gap-3">
+              <h1 className="flex items-center text-2xl font-bold mb-2">
+                <CirclePlus className="mr-2 h-6 w-6" />
+                Create A Post
+              </h1>
+              <p className="text-muted-foreground mb-6">
+                Chat with your friends
+              </p> 
             </div>
-          </CardHeader>
+          </div>
 
           <form onSubmit={handleSubmit}>
-            <CardContent className="p-6 space-y-5">
-              <div className="">
-                <label htmlFor="post-content" className="text-sm font-medium text-foreground">
+            <div className="p-6 space-y-5">
+              <div className="flex flex-col gap-3">
+                <label htmlFor="post-content" className="text-md font-medium text-foreground">
                   Caption
                 </label>
                 <Textarea
                   id="post-content"
-                  placeholder="What would you like to share?"
+                  placeholder="What would you like to share..."
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   className="min-h-[160px] text-base rounded-lg"
@@ -171,7 +168,7 @@ export default function Home() {
                     onClick={removeImage}
                     className="absolute top-2 right-2 bg-background/80 hover:bg-background"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-6 w-6" />
                   </Button>
                 </div>
               )}
@@ -196,12 +193,8 @@ export default function Home() {
                     onClick={triggerFileInput}
                     className="gap-2"
                   >
-                    <ImagePlus className="h-4 w-4" />
+                    <ImagePlus className="h-6 w-6" />
                     {selectedImage ? "Change" : "Add Image"}
-                  </Button>
-                  <Button type="button" variant="outline" size="sm" className="gap-2">
-                    <MapPin className="h-4 w-4" />
-                    Location
                   </Button>
                 </div>
               </div>
@@ -213,19 +206,18 @@ export default function Home() {
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-6 w-6 animate-spin" />
                     Publishing...
                   </>
                 ) : (
                   <>
-                    <Send className="h-4 w-4" />
+                    <Send className="h-6 w-6" />
                     Publish Post
                   </>
                 )}
               </Button>
-            </CardContent>
+            </div>
           </form>
-        </Card>
       </main>
     </ProtectedRoute>
   );

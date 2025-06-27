@@ -1,19 +1,18 @@
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { firestore } from "./firebase";
 
-export const saveUserToFirestore = async (user: any) => {
-  if (!user) return;
+export const saveUserToFirestore = async (user : any) => {
+  if (!user?.uid) return;
 
   const userRef = doc(firestore, "users", user.uid);
-  const docSnap = await getDoc(userRef);
-
-  if (!docSnap.exists()) {
-    await setDoc(userRef, {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName || user.username || "Anonymous",
-      photoURL: user.photoURL || "",
-      createdAt: new Date(),
-    });
-  }
+  await setDoc(userRef, {
+    uid: user.uid,
+    email: user.email,
+    displayName: user.displayName || "",
+    photoURL: user.photoURL || "",
+    followers: [],
+    following: [],
+    createdAt: new Date(),
+  }, { merge: true });
 };
+

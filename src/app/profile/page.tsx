@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Edit, LogOut, Settings, MessageSquare, User, Mail, Calendar, Link, Share2 } from "lucide-react";
+import { MoreVertical, Edit, LogOut, Settings, MessageSquare, User, Mail, Calendar, Link, Share2, MessagesSquare, UserRoundCog } from "lucide-react";
 import AppNavbar from "@/components/Navbar";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/AuthContext";
@@ -76,21 +76,20 @@ export default function ProfilePage() {
   return (
     <ProtectedRoute>
       <AppNavbar />
-      <div className="flex justify-center items-start max-h-screen pt-12 bg-gradient-to-b from-muted/10 to-background">
-        <div className="w-full max-w-2xl space-y-6 px-4">
+      <div className="flex justify-center items-start max-w-3xl mx-auto max-h-screen md:mt-12 mt-6">
+        <div className="w-full space-y-6 px-4">
           {/* Profile Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="shadow-lg rounded-xl overflow-hidden">
-              <CardHeader className="border-none px-6">
+              <div className="border-none px-0">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-bold flex">
-                    <User className="mr-2"/>
-                    Profile
-                  </h2>
+                <h1 className="flex items-center text-2xl font-bold mb-2">
+                  <UserRoundCog className="mr-2 h-6 w-6" />
+                  Profile
+                </h1>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="rounded-full">
@@ -119,7 +118,7 @@ export default function ProfilePage() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-              </CardHeader>
+              </div>
 
               <CardContent className="p-6">
                 <div className="flex flex-col items-center gap-4 mb-6">
@@ -200,7 +199,7 @@ export default function ProfilePage() {
                 </div>
               </CardContent>
 
-              <CardFooter className="flex justify-between p-4 bg-muted/30 border-t">
+              <div className="flex justify-between p-4 bg-muted/30 border-t">
                 {isEditing ? (
                   <>
                     <Button 
@@ -229,8 +228,7 @@ export default function ProfilePage() {
                     </div>
                   </div>
                 )}
-              </CardFooter>
-            </Card>
+              </div>
           </motion.div>
         </div>
       </div>

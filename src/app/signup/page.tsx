@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, provider } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth, provider, storage } from "@/lib/firebase";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
@@ -14,6 +15,8 @@ import Image from "next/image";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,21 +50,35 @@ export default function SignupPage() {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       const user = result.user;
   
-      await saveUserToFirestore(user);
+      let photoURL = "";
+  
+      if (profilePic) {
+        const storageRef = ref(storage, `profilePictures/${user.uid}`);
+        await uploadBytes(storageRef, profilePic);
+        photoURL = await getDownloadURL(storageRef);
+      }
+  
+      await saveUserToFirestore({
+        ...user,
+        displayName,
+        photoURL,
+      });
+  
       router.push("/");
     } catch (err) {
-      setError("Signup failed. Please try again with a stronger password.");
       console.error(err);
+      setError("Signup failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
   
+  
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+    <main className="flex items-center justify-center min-h-screen px-4">
       <Card className="w-full max-w-md shadow-lg rounded-xl overflow-hidden">
-        <CardHeader className="space-y-1 p-6 pb-2">
+        <CardHeader className="space-y-1 pt-3">
           <h2 className="text-2xl font-bold text-center text-gray-800">Create Account</h2>
           <p className="text-sm text-center text-gray-500">
             Get started with your new account
@@ -75,7 +92,24 @@ export default function SignupPage() {
                 <span>{error}</span>
               </div>
             )}
-            
+            <div className="space-y-2">
+              <label htmlFor="displayName" className="text-sm font-medium text-gray-700">
+                Display Name
+              </label>
+              <div className="relative">
+                <UserPlus className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="displayName"
+                  type="text"
+                  placeholder="Your Display Name..."
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className="pl-10"
+                  required
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium text-gray-700">
                 Email
@@ -126,6 +160,18 @@ export default function SignupPage() {
                 Use at least 6 characters
               </p>
             </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Profile Picture (optional)
+              </label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setProfilePic(e.target.files?.[0] || null)}
+              />
+            </div>
+
 
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import AppNavbar from "@/components/Navbar";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Search, UserPlus, UserCheck, Loader2 } from "lucide-react";
+import { Search, UserPlus, UserCheck, Loader2, User2, UserRoundPlus, UserRoundCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -133,9 +133,12 @@ export default function PeoplePage() {
   return (
     <ProtectedRoute>
       <AppNavbar />
-      <main className="pt-12 px-4 pb-12 min-h-screen max-w-3xl mx-auto bg-gradient-to-b from-muted/10 to-background">
+      <main className="md:mt-12 mt-6 px-4 pb-12 min-h-screen max-w-3xl mx-auto bg-gradient-to-b from-muted/10 to-background">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-2">Discover People</h1>
+          <h1 className="flex items-center gap-2 text-2xl font-bold mb-2">
+            <UserRoundPlus className="h-6 w-6"/>
+            Discover People
+          </h1>
           <p className="text-muted-foreground mb-6">
             Connect with others in your community
           </p>
@@ -174,8 +177,9 @@ export default function PeoplePage() {
                   transition={{ duration: 0.2 }}
                 >
                   <Card className="p-4 transition-shadow">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                    <div className="block sm:flex items-center justify-between">
+                      <div className="block gap-3">
+                      <div className="flex items-center gap-3 mb-4 sm:mb-0">
                         <Avatar className="h-12 w-12">
                           <AvatarImage src={userData.photoURL || "/placeholder.png"} />
                           <AvatarFallback>
@@ -184,44 +188,38 @@ export default function PeoplePage() {
                         </Avatar>
                         <div>
                           <p className="font-medium">{userData.displayName}</p>
-                          <div className="flex gap-2 mt-1">
-                            <Badge variant="secondary" className="px-2 py-0.5 text-xs">
-                              {userData.followers?.length || 0} 
-                              {userData.followers?.length === 1 ? " follower" : " followers"}
-                            </Badge>
-                            <Badge variant="secondary" className="px-2 py-0.5 text-xs">
-                              {userData.following?.length || 0} following
-                            </Badge>
+                          <div className="flex gap-0 mt-0">
+                            {userData.bio && (
+                            <p className="text-xs text-muted-foreground self-end">
+                              {userData.bio}
+                            </p>
+                            )}
                           </div>
                         </div>
+                      </div>
                       </div>
                       <Button
                         size="sm"
                         variant={isFollowing(userData) ? "outline" : "default"}
                         onClick={() => handleFollowToggle(userData)}
                         disabled={followingLoading === userData.uid}
-                        className="min-w-[100px] cursor-pointer"
+                        className="sm:w-[120px] cursor-pointer w-full"
                       >
                         {followingLoading === userData.uid ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : isFollowing(userData) ? (
                           <>
-                            <UserCheck className="h-4 w-4 mr-2" />
+                            <UserRoundCheck className="h-4 w-4 mr-1" />
                             Following
                           </>
                         ) : (
                           <>
-                            <UserPlus className="h-4 w-4 mr-2" />
+                            <UserRoundPlus className="h-4 w-4 mr-1" />
                             Follow
                           </>
                         )}
                       </Button>
                     </div>
-                    {userData.bio && (
-                      <p className="text-sm text-muted-foreground mt-3 ml-15">
-                        {userData.bio}
-                      </p>
-                    )}
                   </Card>
                 </motion.div>
               ))}

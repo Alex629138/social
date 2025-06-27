@@ -5,7 +5,7 @@ import { arrayRemove, arrayUnion, collection, doc, addDoc, getDoc, onSnapshot, o
 import { firestore, db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Heart, MessageCircle, MoreHorizontal, Send } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Send, Rss, RadioTower } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -144,9 +144,14 @@ export default function FeedPage() {
   return (
     <ProtectedRoute>
       <AppNavbar />
-      <main className="pt-12 px-4 pb-12 min-h-screen max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Community Feed</h1>
-
+      <main className="md:mt-12 mt-6 px-4 pb-12 min-h-screen max-w-3xl mx-auto">
+        <h1 className="flex gap-2 items-center text-2xl font-bold mb-2">
+          <RadioTower className="h-6 w-6"/>
+          Community Feed
+        </h1>
+        <p className="text-muted-foreground mb-6">
+          See what your friends are posting
+        </p>
         {loading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />

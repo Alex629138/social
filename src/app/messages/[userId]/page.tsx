@@ -27,12 +27,12 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const profileScrollRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom on new message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    profileScrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  });
 
   // Fetch messages
   useEffect(() => {
@@ -79,10 +79,10 @@ export default function ChatPage() {
   return (
     <ProtectedRoute>
       <AppNavbar />
-      <main className="pt-12 px-4 pb-24 max-w-xl mx-auto min-h-screen flex flex-col">
+      <main className="md:mt-12 mt-6 px-4 pb-24 max-w-xl mx-auto min-h-screen flex flex-col">
         {/* Chat Header */}
         <div className="py-3 border-b mb-4">
-          <div className="flex items-center gap-3">
+          <div ref={profileScrollRef} className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
               <AvatarImage src={user.photoURL || "/placeholder.png"} />
               <AvatarFallback>
@@ -141,7 +141,6 @@ export default function ChatPage() {
                 </div>
               ))
           )}
-          <div ref={messagesEndRef} />
         </div>
 
         {/* Message Input */}

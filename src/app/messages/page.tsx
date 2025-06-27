@@ -9,7 +9,7 @@ import AppNavbar from "@/components/Navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, MessageSquare, UserPlus } from "lucide-react";
+import { Search, MessageSquare, UserPlus, MessagesSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
@@ -47,10 +47,15 @@ export default function MessagesPage() {
   return (
     <ProtectedRoute>
       <AppNavbar />
-      <main className="pt-12 px-4 pb-12 min-h-screen max-w-3xl mx-auto">
+      <main className="md:mt-12 mt-6 px-4 pb-12 min-h-screen max-w-3xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-2">Messages</h1>
-          
+          <h1 className="flex items-center text-2xl font-bold mb-2">
+            <MessagesSquare className="mr-2 h-6 w-6" />
+            Messages
+          </h1>
+          <p className="text-muted-foreground mb-6">
+            Chat with your friends
+          </p>
           <div className="relative mb-6">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
