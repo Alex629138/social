@@ -5,22 +5,22 @@ import { useAuth } from "@/context/AuthContext";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Edit, Settings } from "lucide-react";
-import AppNavbar from "@/components/Navbar";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Calendar, UserRoundCog } from "lucide-react";
 import { motion } from "framer-motion";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import { toast } from "sonner";
-import Link from "next/link";
 import {useUserData} from "@/hooks/useUserData";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import AppNavbar from "@/components/Navbar";
 
 export default function ProfilePage() {
   const { user } = useAuth();

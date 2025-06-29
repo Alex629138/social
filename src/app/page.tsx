@@ -1,224 +1,191 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Textarea } from "@/components/ui/textarea";
+import { motion } from "framer-motion";
+import { Sparkles, MessageSquare, Heart, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { firestore, storage } from "@/lib/firebase";
-import { auth } from "@/lib/firebase";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Send, ImagePlus, X, Loader2, CirclePlus } from "lucide-react";
-import AppNavbar from "@/components/Navbar";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import { v4 as uuidv4 } from 'uuid';
-import { toast } from "sonner";
-import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
-export default function Home() {
-  const [content, setContent] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+export default function IntroPage() {
+  const [bubbles, setBubbles] = useState<Array<{
+    x: number;
+    y: number;
+    scale: number;
+    size: number;
+    duration: number;
+    delay: number;
+  }>>([]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.match('image.*')) {
-        toast.error("Invalid File", {
-          description: "Please upload an image file"
-        });
-        return;
-      }
-      
-      // Validate file size (5MB max)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File Too Large", {
-          description: "Maximum image size is 5MB"
-        });
-        return;
-      }
-
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
-
-  const removeImage = () => {
-    setSelectedImage(null);
-    setImagePreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    const promise = new Promise(async (resolve, reject) => {
-      try {
-        const user = auth.currentUser;
-        if (!user) throw new Error("User not authenticated");
-        
-        let imageUrl = null;
-
-        // Upload image to Firebase Storage if selected
-        if (selectedImage) {
-          const imageRef = ref(storage, `posts/${user.uid}/${uuidv4()}`);
-          await uploadBytes(imageRef, selectedImage);
-          imageUrl = await getDownloadURL(imageRef);
-        }
-
-        // Save post data to Firestore
-        await addDoc(collection(firestore, "posts"), {
-          uid: user.uid,
-          displayName: user.displayName || "Anonymous",
-          photoURL: user.photoURL || null,
-          content,
-          imageUrl,
-          likes: [],
-          comments: [],
-          createdAt: serverTimestamp(),
-        });
-
-        setContent("");
-        removeImage();
-        resolve("Post published successfully");
-      } catch (error) {
-        console.error("Error creating post:", error);
-        reject(error);
-      } finally {
-        setIsSubmitting(false);
-      }
-    });
-
-    toast.promise(promise, {
-      loading: 'Publishing your post...',
-      success: (data) => {
-        return `Post published successfully`;
-      },
-      error: (error) => {
-        return 'Failed to publish post. Please try again.';
-      },
-    });
-  };
-
-  
+  useEffect(() => {
+    // This code runs only on the client side
+    setBubbles(
+      Array.from({ length: 20 }, () => ({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        scale: Math.random() * 0.6 + 0.4,
+        size: Math.random() * 40 + 20,
+        duration: Math.random() * 10 + 8,
+        delay: Math.random() * 5,
+      }))
+    );
+  }, []);
 
   return (
-    <ProtectedRoute>
-      <AppNavbar />
-      <main className="md:mt-12 mt-6 px-4 pb-12 max-h-screen max-w-3xl mx-auto">
-          <div className="px-6">
-            <div className="block items-center gap-3">
-              <h1 className="flex items-center text-2xl font-bold mb-2">
-                <CirclePlus className="mr-2 h-6 w-6" />
-                Create A Post
-              </h1>
-              <p className="text-muted-foreground mb-6">
-                Share what&#39;s on your mind with the community!
-              </p> 
-            </div>
-          </div>
+    <div className="relative min-h-screen bg-white overflow-hidden">
+      {/* Floating animated bubbles */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        {bubbles.map((b, i) => (
+          <motion.div
+            key={i}
+            initial={{ x: b.x, y: b.y, scale: b.scale }}
+            animate={{ y: [b.y, -100], opacity: [1, 0] }}
+            transition={{
+              duration: b.duration,
+              repeat: Infinity,
+              repeatType: "loop",
+              delay: b.delay,
+            }}
+            className="absolute bg-yellow-500/80 rounded-full blur-md"
+            style={{
+              width: b.size,
+              height: b.size,
+            }}
+          />
+        ))}
+      </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="p-6 space-y-5">
-              <div className="flex flex-col">
-                <label htmlFor="post-content" className="text-md font-medium text-foreground mb-2">
-                  Caption
-                </label>
-                <Textarea
-                  id="post-content"
-                  placeholder="What would you like to share..."
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  className="min-h-[160px] text-base rounded-lg"
-                  required
-                  maxLength={500}
-                />
-                <div className="flex justify-end">
-                  <span className="text-xs text-muted-foreground">
-                    {content.length}/500 characters
-                  </span>
-                </div>
-              </div>
+      <div className="container mx-auto px-4 py-12 flex flex-col items-center justify-center text-center z-10 relative">
+        {/* Animated logo */}
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", damping: 12, stiffness: 120 }}
+          className="mb-10"
+        >
+          <motion.h1
+            className="text-7xl font-extrabold tracking-tight mb-2"
+            whileHover={{ scale: 1.06 }}
+          >
+            <span className="text-black">Feed</span>
+            <span className="text-yellow-500">Link</span>
+          </motion.h1>
 
-              {imagePreview && (
-                <div className="relative overflow-hidden rounded-lg">
-                  <Image
-                    width="50"
-                    height="30"
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-auto max-h-96 object-contain"
-                  />
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    onClick={removeImage}
-                    className="absolute cursor-pointer top-2 right-2 text-white bg-primary hover:bg-gray-300"
-                  >
-                    <X className="h-6 w-6 hover:text-black" />
-                  </Button>
-                </div>
-              )}
+          <motion.div
+            animate={{
+              rotate: [0, 10, -10, 0],
+              y: [0, -6, 0],
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 2.5,
+              ease: "easeInOut",
+            }}
+          >
+            <Sparkles className="h-9 w-9 text-yellow-500 mx-auto" />
+          </motion.div>
+        </motion.div>
 
-              <div className="flex items-center">
-                <div className="flex">
-                  <label htmlFor="image-upload" className="cursor-pointer">
-                    <input
-                      ref={fileInputRef}
-                      title="Upload Image"
-                      id="image-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={triggerFileInput}
-                    disabled={isSubmitting || !content}
-                    className="bg-yellow-500 hover:bg-primary hover:text-white"
-                  >
-                    <ImagePlus className="h-6 w-6" />
-                    {selectedImage ? "Change" : "Add Image"}
-                  </Button>
-                </div>
-              </div>
+        {/* Tagline */}
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-2xl text-black mb-12 max-w-2xl leading-relaxed"
+        >
+          The <span className="text-yellow-500 font-semibold">fun</span>,{" "}
+          <span className="text-yellow-500 font-semibold">friendly</span> way to connect.
+        </motion.p>
 
-              <Button
-                type="submit"
-                disabled={isSubmitting || !content}
-                className="w-full h-11 gap-2 text-base text-black font-medium bg-yellow-500 hover:bg-primary hover:text-white"
+        {/* Features */}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 w-full max-w-5xl"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          {[
+            {
+              icon: MessageSquare,
+              title: "Chat",
+              desc: "Spark conversations with friends old and new",
+            },
+            {
+              icon: Heart,
+              title: "Connect",
+              desc: "Share what you love and find your people",
+            },
+            {
+              icon: Users,
+              title: "Community",
+              desc: "Join groups that share your passions",
+            },
+          ].map(({ icon: Icon, title, desc }, i) => (
+            <motion.div
+              key={i}
+              whileHover={{ y: -5 }}
+              className="bg-white p-6 rounded-2xl shadow-xl border border-yellow-500/20 transition-all"
+            >
+              <motion.div
+                className="mb-4"
+                animate={{
+                  rotate: [0, 10, -10, 0],
+                }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 4 + i,
+                  ease: "easeInOut",
+                  delay: i,
+                }}
               >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-6 w-6 animate-spin" />
-                    Publishing...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-6 w-6" />
-                    Publish Post
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
-      </main>
-    </ProtectedRoute>
+                <Icon className="h-9 w-9 text-yellow-500 mx-auto" />
+              </motion.div>
+              <h3 className="text-xl font-bold text-black mb-2">{title}</h3>
+              <p className="text-gray-700">{desc}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* CTA Button */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Button className="bg-yellow-500 hover:bg-black hover:text-white text-black text-lg px-10 py-5 rounded-md shadow-lg cursor-pointer">
+            <Link href="/create-post">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2"
+              >
+                <span className="font-semibold">Share a post</span>
+                <ArrowRight className="h-5 w-5" />
+              </motion.div>
+            </Link>
+          </Button>
+        </motion.div>
+
+        {/* Footer sparkle */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="mt-10 text-black/60"
+        >
+          <motion.div
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+          >
+            <Sparkles className="h-5 w-5 mx-auto text-yellow-500" />
+          </motion.div>
+          <Link
+            href="/create-post"
+            className="mt-1 text-sm"
+          >
+            Start sharing your world today
+          </Link>
+        </motion.div>
+      </div>
+    </div>
   );
 }

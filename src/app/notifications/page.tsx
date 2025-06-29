@@ -91,7 +91,7 @@ export default function NotificationsPage() {
               variant="outline" 
               size="sm"
               onClick={() => setShowUnreadOnly(!showUnreadOnly)}
-              className="gap-2"
+              className="gap-2 hover:bg-yellow-500 cursor-pointer"
             >
               {showUnreadOnly ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
               {showUnreadOnly ? "Show all" : "Unread only"}
@@ -102,7 +102,7 @@ export default function NotificationsPage() {
                 variant="ghost" 
                 size="sm"
                 onClick={markAllAsRead}
-                className="text-primary hover:text-primary"
+                className="text-primary cursor-pointer hover:bg-yellow-100"
               >
                 Mark all as read
               </Button>

@@ -5,13 +5,14 @@ import { arrayRemove, arrayUnion, collection, doc, addDoc, getDoc, onSnapshot, o
 import { firestore, db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Heart, MessageCircle, Send, RadioTower } from "lucide-react";
+import { Loader2, Heart, MessageCircle, Send, RadioTower, Edit, Sparkle, Sparkles, PencilOff } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import AppNavbar from "@/components/Navbar";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import Link from "next/link";
 
 type Post = {
   id: string;
@@ -161,10 +162,18 @@ export default function FeedPage() {
     <ProtectedRoute>
       <AppNavbar />
       <main className="md:mt-12 mt-6 px-4 pb-12 min-h-screen max-w-3xl mx-auto">
-        <h1 className="flex gap-2 items-center text-2xl font-bold mb-2">
-          <RadioTower className="h-6 w-6"/>
-          Community Feed
-        </h1>
+        <div className="flex justify-between">
+          <h1 className="flex gap-2 items-center text-2xl font-bold mb-2">
+            <RadioTower className="h-6 w-6"/>
+            Community Feed
+          </h1>
+          <Button className="border bg-white text-black hover:bg-yellow-500 transition-colors">
+            <Edit/>
+            <Link href="/create-post">
+              Create Post
+            </Link>
+          </Button>
+        </div>
         <p className="text-muted-foreground mb-6">
           See what your friends are posting
         </p>
@@ -173,7 +182,16 @@ export default function FeedPage() {
             <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
           </div>
         ) : posts.length === 0 ? (
-          <p className="text-muted-foreground">No posts yet. Be the first!</p>
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <PencilOff className="h-10 w-10"/>
+            <p className="text-muted-foreground">No posts yet. Be the first!</p>
+            <Button className="border text-black hover:text-white bg-yellow-500 mt-10 transition-colors animate-bounce">
+            <Edit/>
+            <Link href="/create-post">
+              Make your first post
+            </Link>
+          </Button>
+          </div>
         ) : (
           <div className="space-y-6">
             {posts.map((post) => (
@@ -181,7 +199,7 @@ export default function FeedPage() {
                 key={post.id}
                 className="border shadow-sm rounded-xl"
               >
-                <CardHeader className="px-6 py-1 flex items-center gap-3">
+                <CardHeader className="px-6 flex items-center gap-2">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={post.photoURL ?? "/placeholder.png"} alt="User Avatar" />
                     <AvatarFallback>
@@ -198,7 +216,7 @@ export default function FeedPage() {
                   </div>
                 </CardHeader>
 
-                <CardContent className="px-6 pb-4 space-y-3">
+                <CardContent className="px-6 space-y-3">
                   <p className="text-sm text-foreground">{post.content}</p>
                   
                   {post.imageUrl && (
@@ -228,14 +246,14 @@ export default function FeedPage() {
                         });
                       }}
                     >
-                      <Heart className={`w-4 h-4 ${post.likes?.includes(user.uid) ? "text-yellow-500 fill-yellow-500" : ""}`} />
+                      <Sparkles className={`w-4 h-4 ${post.likes?.includes(user.uid) ? "text-yellow-500 fill-yellow-500" : ""}`} />
                       <span>{post.likes?.length || 0}</span>
                     </Button>
                     
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-sm flex gap-1 items-center px-0"
+                      className="text-sm flex gap-1 items-center"
                       onClick={() => setOpenComments(post.id)}
                     >
                       <MessageCircle className="w-4 h-4" />

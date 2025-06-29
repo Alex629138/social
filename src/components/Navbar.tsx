@@ -37,7 +37,8 @@ export default function Navbar() {
             height="36"
             src="/logo.jpg" 
             alt="Logo" />
-          FeedLink
+          <span className="text-black">Feed</span>
+          <span className="text-yellow-500">Link</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -74,7 +75,7 @@ export default function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="text-red-500">
                   <LogOut className="w-4 h-4 mr-2" />
-                  <Link href="/login">
+                  <Link href="/signup">
                     Logout
                   </Link>
                 </DropdownMenuItem>
