@@ -160,7 +160,7 @@ export default function ChatPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{
                     type: "spring",
-                    stiffness: 300,
+                    stiffness: 500,
                     damping: 10
                   }}
                   className={`max-w-xs px-4 py-3 rounded-xl ${
