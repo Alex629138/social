@@ -11,6 +11,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import  ProtectedRoute  from "@/components/ProtectedRoute";
 import  AppNavbar  from "@/components/Navbar";
 import { Send, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 type Message = {
   id: string;
@@ -103,7 +104,7 @@ export default function ChatPage() {
     };
 
     markAsRead();
-  }, [user?.uid, recipient]);
+  }, [user?.uid, recipient, user]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !user || typeof userId !== "string") return;
@@ -154,7 +155,13 @@ export default function ChatPage() {
                 key={msg.id}
                 className={`flex flex-col ${msg.senderId === user.uid ? "items-end" : "items-start"} mb-3`}
               >
-                <div
+                <motion.div
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{
+                      duration: 0.4,
+                      scale: { type: "spring", visualDuration: 0.4, bounce: 0.5 },
+                  }}
                   className={`max-w-xs px-4 py-3 rounded-xl ${
                     msg.senderId === user.uid
                       ? "bg-primary text-primary-foreground rounded-tr-none"
@@ -162,7 +169,7 @@ export default function ChatPage() {
                   }`}
                 >
                   <p className="text-sm">{msg.text}</p>
-                </div>
+                </motion.div>
                 <p className="text-[0.6rem] mt-1 text-muted-foreground">
                   {msg.createdAt?.toDate().toLocaleTimeString([], {
                     hour: "2-digit",
