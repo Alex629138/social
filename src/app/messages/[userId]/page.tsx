@@ -153,14 +153,15 @@ export default function ChatPage() {
             messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex flex-col ${msg.senderId === user.uid ? "items-end" : "items-start"} mb-3`}
+                className={`flex flex-col ${msg.senderId === user.uid ? "items-end" : "items-start"} mb-3 overflow-hidden`}
               >
                 <motion.div
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{
-                      duration: 0.4,
-                      scale: { type: "spring", visualDuration: 0.4, bounce: 0.5 },
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 10
                   }}
                   className={`max-w-xs px-4 py-3 rounded-xl ${
                     msg.senderId === user.uid
