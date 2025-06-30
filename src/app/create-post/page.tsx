@@ -116,21 +116,19 @@ export default function Home() {
   return (
     <ProtectedRoute>
       <AppNavbar />
-      <main className="md:mt-12 mt-6 px-4 pb-12 max-h-screen max-w-3xl mx-auto">
-          <div className="px-6">
-            <div className="block items-center gap-3">
-              <h1 className="flex items-center text-2xl font-bold mb-2">
-                <CirclePlus className="mr-2 h-6 w-6" />
+      <main className="md:mt-12 px-4 mt-6 pb-12 min-h-screen max-w-3xl mx-auto">
+          <div className="flex items-center flex-wrap">
+            <h1 className="flex items-center text-2xl font-bold mb-2">
+              <CirclePlus className="mr-2 h-6 w-6" />
                 Create A Post
-              </h1>
-              <p className="text-muted-foreground mb-6">
-                Share what&#39;s on your mind with the community!
-              </p> 
-            </div>
+            </h1>
+            <p className="text-muted-foreground mb-6">
+              Share what&#39;s on your mind with the community!
+            </p> 
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="p-6 space-y-5">
+            <div className="space-y-5">
               <div className="flex flex-col">
                 <label htmlFor="post-content" className="text-md font-medium text-foreground mb-2">
                   Caption
@@ -140,7 +138,7 @@ export default function Home() {
                   placeholder="What would you like to share..."
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className="min-h-[160px] text-base rounded-lg"
+                  className="min-h-[160px] max-h-[200px] text-base rounded-lg"
                   required
                   maxLength={500}
                 />

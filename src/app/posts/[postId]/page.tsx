@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AppNavbar from "@/components/Navbar";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function PostPage() {
   const { postId } = useParams();
@@ -29,7 +30,7 @@ export default function PostPage() {
   }, [postId]);
 
   return (
-    <>
+    <ProtectedRoute>
       <AppNavbar />
       <main className="pt-12 px-4 max-h-screen">
         {loading ? (
@@ -65,6 +66,6 @@ export default function PostPage() {
           <p className="text-center text-muted-foreground">Post not found.</p>
         )}
       </main>
-    </>
+    </ProtectedRoute>
   );
 }

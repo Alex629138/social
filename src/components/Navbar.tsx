@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { LogOut } from "lucide-react";
+import { CircleEllipsis, LogOut, Menu } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
@@ -43,21 +43,21 @@ export default function Navbar() {
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-6">
-          {links.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "text-sm font-medium transition-colors",
-                pathname === href ? "text-white px-3 py-2 bg-primary rounded-md" : "text-muted-foreground hover:text-primary"
-              )}
-            >
-              {label}
-            </Link>
-          ))}
-
           {user ? (
-            <DropdownMenu>
+            <div>
+              {links.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={cn(
+                    "text-sm font-medium transition-colors",
+                    pathname === href ? "text-white px-3 py-2 bg-primary rounded-md" : "text-muted-foreground hover:text-primary"
+                  )}
+                >
+                  {label}
+                </Link>
+              ))}
+              <DropdownMenu>
               <DropdownMenuTrigger>
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={user.photoURL ?? "/placeholder.png"} />
@@ -81,15 +81,16 @@ export default function Navbar() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            </div>
           ) : (
-            <>
+            <div>
               <Link href="/login">
                 <Button variant="ghost" size="sm">Login</Button>
               </Link>
               <Link href="/signup">
                 <Button size="sm">Sign Up</Button>
               </Link>
-            </>
+            </div>
           )}
         </div>
 
@@ -97,38 +98,13 @@ export default function Navbar() {
         <div className="md:hidden">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <svg
-                  className="w-6 h-6 text-muted-foreground"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
+              <Button variant="ghost">
+                <CircleEllipsis className="h-6 w-6"/>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {links.map(({ href, label }) => (
-                <DropdownMenuItem key={href} asChild>
-                  <Link 
-                    href={href}
-                    className={cn(
-                      "text-sm font-medium transition-colors",
-                      pathname === href ? "text-white px-3 py-2 bg-primary rounded-md" : "text-muted-foreground hover:text-primary"
-                    )}>
-                      {label}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-
+            
               {user ? (
-                <>
+                <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem asChild>
                     <Link 
                       href="/settings"
@@ -147,18 +123,17 @@ export default function Navbar() {
                     <LogOut className="w-4 h-4 mr-2" />
                     Logout
                   </DropdownMenuItem>
-                </>
+                </DropdownMenuContent>
               ) : (
-                <>
+                <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem asChild>
                     <Link href="/login">Login</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/signup">Sign Up</Link>
                   </DropdownMenuItem>
-                </>
+                </DropdownMenuContent>
               )}
-            </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>

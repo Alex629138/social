@@ -1,37 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, OAuthProvider } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Circle, Loader2 } from "lucide-react";
 import { saveUserToFirestore } from "@/lib/saveUserToFirestore";
-import { BsFacebook, BsGoogle } from "react-icons/bs";
+import { BsGoogle, BsMicrosoft } from "react-icons/bs";
 import Image from "next/image";
 
-export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false);
+export default function SignupPage() {
+  const [isLoading, setIsLoading] = useState<null | 'google' | 'microsoft'>(null);
   const [error, setError] = useState("");
   const router = useRouter();
+  const [bubbles, setBubbles] = useState<Array<{
+    x: number;
+    y: number;
+    scale: number;
+    size: number;
+    duration: number;
+    delay: number;
+  }>>([]);
 
-  const handleSocialLogin = async (provider: GoogleAuthProvider | FacebookAuthProvider) => {
-    setIsLoading(true);
+  const handleSocialLogin = async (provider: GoogleAuthProvider | OAuthProvider) => {
+    setIsLoading(provider instanceof GoogleAuthProvider ? 'google' : 'microsoft');
     setError("");
 
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
       await saveUserToFirestore(user);
       router.push("/");
     } catch (err) {
       console.error(err);
       setError("Login failed. Please try again.");
     } finally {
-      setIsLoading(false);
+      setIsLoading(null);
     }
   };
 
@@ -40,85 +44,185 @@ export default function LoginPage() {
     handleSocialLogin(provider);
   };
 
-  // const handleFacebookLogin = () => {
-  //   const provider = new FacebookAuthProvider();
-  //   handleSocialLogin(provider);
-  // };
+  const handleMicrosoftLogin = () => {
+    const provider = new OAuthProvider('microsoft.com');
+    provider.addScope('openid');
+    provider.addScope('email');
+    provider.addScope('profile');
+    handleSocialLogin(provider);
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setBubbles(
+        Array.from({ length: 15 }, () => ({
+          x: Math.random() * (window.innerWidth - 40),
+          y: Math.random() * (window.innerHeight - 40) + 40,
+          scale: Math.random() * 0.6 + 0.4,
+          size: Math.random() * 30 + 20,
+          duration: Math.random() * 10 + 8,
+          delay: Math.random() * 5,
+        }))
+      );
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
-    <main className="flex items-center justify-center min-h-screen px-4">  
-      <Card className="w-full max-w-md shadow-lg rounded-xl overflow-hidden bg-transparent z-10">
-        <CardHeader className="space-y-1 pt-6 pb-2">
-          <h2 className="text-2xl font-bold text-center text-gray-800">
-            Welcome back to {" "}
-            <div className="flex justify-center items-center pt-4">
-                <Image 
-                    src="/logo.jpg" 
-                    alt="FeedLink logo"
-                    width="50"
-                    height="50"
-                />
-                <span className="text-black">
-                    Feed
-                </span>
-                <span className="text-yellow-500">Link</span>
-            </div>
-          </h2>
-          <p className="text-sm text-center text-gray-500">
-            Connect with your Google account
-          </p>
-        </CardHeader>
-        
-        <CardContent className="space-y-4 p-6">
+    <main className="relative flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-white to-yellow-50 overflow-hidden">
+      {/* Background bubbles */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {bubbles.map((b, i) => (
+          <motion.div
+            key={i}
+            initial={{ x: b.x, y: b.y, scale: b.scale }}
+            animate={{ y: [b.y, -b.size], opacity: [1, 0] }}
+            transition={{ duration: b.duration, repeat: Infinity, delay: b.delay }}
+            className="absolute bg-yellow-500/20 rounded-full blur-xs"
+            style={{ width: b.size, height: b.size }}
+          />
+        ))}
+      </div>
+
+      {/* Login card */}
+      <motion.div 
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-md z-10"
+      >
+        <div className="flex flex-col items-center mb-12">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="mb-4"
+          >
+            <Image
+              src="/logo.jpg"
+              alt="Logo"
+              width={120}
+              height={120}
+            />
+          </motion.div>
+          <motion.h1 
+            className="text-4xl font-bold mb-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <span className="text-black">Feed</span>
+            <span className="text-yellow-500">Link</span>
+          </motion.h1>
+          <motion.p
+            className="text-gray-500"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            Connect with your preferred provider
+          </motion.p>
+        </div>
+
+        {/* Floating provider circles */}
+        <div className="flex flex-col lg:flex-row lg:justify-between items-center space-y-8">
           {error && (
-            <div className="text-sm text-red-500 bg-red-100 p-3 rounded-md flex items-center justify-center">
-              <span>{error}</span>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-sm text-red-500 bg-red-100 px-4 py-2 rounded-full"
+            >
+              {error}
+            </motion.div>
           )}
 
-          <div className="space-y-3">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full bg-yellow-500 hover:bg-black hover:text-white cursor-pointer"
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative"
+          >
+            <motion.button
               onClick={handleGoogleLogin}
-              disabled={isLoading}
+              disabled={!!isLoading}
+              className={`w-24 h-24 hover:bg-black hover:text-white rounded-full bg-yellow-500 shadow-lg flex flex-col items-center justify-center ${
+                isLoading === 'google' ? 'cursor-wait' : 'cursor-pointer hover:shadow-xl'
+              }`}
+              animate={{
+                y: [0, -10, 0],
+                rotate: isLoading === 'google' ? [0, 360] : 0
+              }}
+              transition={{
+                y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+                rotate: isLoading === 'google' ? { duration: 1, repeat: Infinity, ease: "linear" } : {}
+              }}
             >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
-                </>
+              {isLoading === 'google' ? (
+                <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"/>
               ) : (
                 <>
-                  <BsGoogle/>
-                  Continue with Google
+                  <BsGoogle className="text-3xl mb-1"/>
+                  <span className="text-sm font-medium">Google</span>
                 </>
               )}
-            </Button>
+            </motion.button>
+            <motion.div
+              className="absolute -inset-2 bg-yellow-500/20 rounded-full -z-10"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0, 0.3]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity
+              }}
+            />
+          </motion.div>
 
-            {/* <Button
-              type="button"
-              variant="outline"
-              className="w-full bg-yellow-500 hover:bg-black hover:text-white cursor-pointer"
-              onClick={handleFacebookLogin}
-              disabled={isLoading}
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative"
+          >
+            <motion.button
+              onClick={handleMicrosoftLogin}
+              disabled={!!isLoading}
+              className={`w-24 h-24 hover:bg-black hover:text-white rounded-full bg-blue-500 shadow-lg flex flex-col items-center justify-center ${
+                isLoading === 'microsoft' ? 'cursor-wait' : 'cursor-pointer hover:shadow-xl'
+              }`}
+              animate={{
+                y: [0, -10, 0],
+                rotate: isLoading === 'microsoft' ? [0, 360] : 0
+              }}
+              transition={{
+                y: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 },
+                rotate: isLoading === 'microsoft' ? { duration: 1, repeat: Infinity, ease: "linear" } : {}
+              }}
             >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
-                </>
+              {isLoading === 'microsoft' ? (
+                <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"/>
               ) : (
                 <>
-                  <BsFacebook/>
-                  Continue with Facebook
+                  <BsMicrosoft className="text-3xl mb-1"/>
+                  <span className="text-sm font-medium">Microsoft</span>
                 </>
               )}
-            </Button> */}
-          </div>
-        </CardContent>
-      </Card>
+            </motion.button>
+            <motion.div
+              className="absolute -inset-2 bg-blue-500/20 rounded-full -z-10"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0, 0.3]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                delay: 0.5
+              }}
+            />
+          </motion.div>
+        </div>
+      </motion.div>
     </main>
   );
 }

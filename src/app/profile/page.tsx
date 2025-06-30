@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Mail, Calendar, UserRoundCog } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import {useUserData} from "@/hooks/useUserData";
+import { useUserData } from "@/hooks/useUserData";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -76,8 +76,8 @@ export default function ProfilePage() {
   }
 
   // Combine profile data with auth user data
-  const userPhotoURL = profileData?.photoURL || user.photoURL;
-  const userDisplayName = profileData?.displayName || user.displayName;
+  const userPhotoURL = user.photoURL;
+  const userDisplayName = user.displayName;
   const userBio = profileData?.bio || "";
 
   return (
@@ -146,6 +146,20 @@ export default function ProfilePage() {
                   <Badge variant="secondary" className="px-3 py-1">
                     @{user.email?.split("@")[0]}
                   </Badge>
+                  <div className="flex items-center gap-6 text-sm text-muted-foreground w-full justify-center">
+                    <div>
+                      <span className="font-bold text-foreground">
+                        {profileData?.followers?.length ?? 0}
+                      </span>{" "}
+                      Followers
+                    </div>
+                    <div>
+                      <span className="font-bold text-foreground">
+                        {profileData?.following?.length ?? 0}
+                      </span>{" "}
+                      Following
+                    </div>
+                  </div>
                 </div>
 
                 <Separator className="my-4" />
@@ -180,7 +194,7 @@ export default function ProfilePage() {
               </CardContent>
 
               <div className="flex justify-between p-4 bg-muted/30 border-t">
-                {isEditing ? (
+                {isEditing && (
                   <>
                     <Button 
                       variant="outline" 
@@ -192,24 +206,8 @@ export default function ProfilePage() {
                       Save Changes
                     </Button>
                   </>
-                ) : (
-                  <div className="flex items-center gap-6 text-sm text-muted-foreground w-full justify-center">
-                    <div>
-                      <span className="font-bold text-foreground">
-                        {profileData?.followers?.length ?? 0}
-                      </span>{" "}
-                      Followers
-                    </div>
-                    <div>
-                      <span className="font-bold text-foreground">
-                        {profileData?.following?.length ?? 0}
-                      </span>{" "}
-                      Following
-                    </div>
-                  </div>
                 )}
               </div>
-            
           </motion.div>
         </div>
       </div>

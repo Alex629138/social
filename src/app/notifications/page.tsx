@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function NotificationsPage() {
   const { user } = useAuth();
@@ -72,7 +73,7 @@ export default function NotificationsPage() {
   if (!user) return null;
 
   return (
-    <>
+    <ProtectedRoute>
       <AppNavbar />
       <main className="md:mt-12 mt-6 px-4 pb-12 min-h-screen max-w-3xl mx-auto">
         <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
@@ -176,6 +177,6 @@ export default function NotificationsPage() {
           </div>          
         )}
       </main>
-    </>
+    </ProtectedRoute>
   );
 }
