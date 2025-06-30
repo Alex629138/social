@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { CircleEllipsis, LogOut, Menu, MenuIcon } from "lucide-react";
+import { LogOut, MenuIcon } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
@@ -84,7 +84,7 @@ export default function Navbar() {
               </DropdownMenu>
             </div>
           ) : (
-            <div>
+            <div className="flex items-center gap-4">
               <Link href="/login">
                 <Button size="sm">Login</Button>
               </Link>

@@ -126,7 +126,7 @@ export default function SignupPage() {
         </div>
 
         {/* Floating provider circles */}
-        <div className="flex flex-col lg:flex-row lg:justify-between items-center space-y-8">
+        <div className="flex justify-around lg:flex-row lg:justify-between items-center space-y-8">
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
