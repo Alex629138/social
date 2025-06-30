@@ -44,13 +44,13 @@ export default function SignupPage() {
     handleSocialLogin(provider);
   };
 
-  const handleMicrosoftLogin = () => {
-    const provider = new OAuthProvider('microsoft.com');
-    provider.addScope('openid');
-    provider.addScope('email');
-    provider.addScope('profile');
-    handleSocialLogin(provider);
-  };
+  // const handleMicrosoftLogin = () => {
+  //   const provider = new OAuthProvider('microsoft.com');
+  //   provider.addScope('openid');
+  //   provider.addScope('email');
+  //   provider.addScope('profile');
+  //   handleSocialLogin(provider);
+  // };
 
   useEffect(() => {
     const handleResize = () => {
@@ -81,7 +81,7 @@ export default function SignupPage() {
             initial={{ x: b.x, y: b.y, scale: b.scale }}
             animate={{ y: [b.y, -b.size], opacity: [1, 0] }}
             transition={{ duration: b.duration, repeat: Infinity, delay: b.delay }}
-            className="absolute bg-yellow-500/20 rounded-full blur-xs"
+            className="absolute bg-yellow-500/20 rounded-full blur-sm"
             style={{ width: b.size, height: b.size }}
           />
         ))}
@@ -121,7 +121,7 @@ export default function SignupPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            Connect with your preferred provider
+            Connect with your prefered provider
           </motion.p>
         </div>
 
@@ -179,11 +179,11 @@ export default function SignupPage() {
             />
           </motion.div>
 
-          <motion.div
+          {/* <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="relative"
-          >
+            >
             <motion.button
               onClick={handleMicrosoftLogin}
               disabled={!!isLoading}
@@ -220,7 +220,7 @@ export default function SignupPage() {
                 delay: 0.5
               }}
             />
-          </motion.div>
+          </motion.div> */}
         </div>
       </motion.div>
     </main>
