@@ -54,12 +54,12 @@ export default function IntroPage() {
         ))}
       </div>
 
-      <div className="container mx-auto px-4 py-12 flex flex-col items-center justify-center text-center z-10 relative">
+      <div className="container mx-auto px-4 py-18 lg:py-12 flex flex-col items-center justify-center text-center z-10 relative">
         {/* Animated logo */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", damping: 12, stiffness: 120 }}
+          transition={{ type: "spring", damping: 12, stiffness: 10 }}
           className="mb-10"
         >
           <motion.h1
@@ -112,18 +112,18 @@ export default function IntroPage() {
             {
               icon: Heart,
               title: "Connect",
-              desc: "Share what you love and find your people",
+              desc: "Share your favorite moments",
             },
             {
               icon: Users,
               title: "Community",
-              desc: "Join groups that share your passions",
+              desc: "Meet new people, make new friends",
             },
           ].map(({ icon: Icon, title, desc }, i) => (
             <motion.div
               key={i}
               whileHover={{ y: -5 }}
-              className="bg-white p-6 rounded-2xl shadow-xl border border-yellow-500/20 transition-all"
+              className="bg-yellow-100 p-6 rounded-2xl shadow-xl border border-yellow-500 transition-all"
             >
               <motion.div
                 className="mb-4"
