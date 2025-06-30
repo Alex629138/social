@@ -59,7 +59,7 @@ export default function IntroPage() {
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", damping: 12, stiffness: 10 }}
+          transition={{ type: "spring", damping: 20, stiffness: 120 }}
           className="mb-10"
         >
           <motion.h1

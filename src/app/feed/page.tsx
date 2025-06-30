@@ -162,12 +162,12 @@ export default function FeedPage() {
     <ProtectedRoute>
       <AppNavbar />
       <main className="md:mt-12 mt-6 px-4 pb-12 min-h-screen max-w-3xl mx-auto">
-        <div className="flex justify-between">
-          <h1 className="flex gap-2 items-center text-2xl font-bold mb-2">
+        <div className="flex justify-between flex-wrap">
+          <h1 className="flex gap-2 items-center text-2xl font-bold mb-2 lg:mb-0">
             <RadioTower className="h-6 w-6"/>
             Community Feed
           </h1>
-          <Button className="border bg-white text-black hover:bg-yellow-500 transition-colors">
+          <Button className="border bg-white text-black hover:bg-yellow-500 transition-colors mb-2 lg:mb-0">
             <Edit/>
             <Link href="/create-post">
               Create Post
