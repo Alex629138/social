@@ -44,13 +44,13 @@ export default function SignupPage() {
     handleSocialLogin(provider);
   };
 
-  // const handleMicrosoftLogin = () => {
-  //   const provider = new OAuthProvider('microsoft.com');
-  //   provider.addScope('openid');
-  //   provider.addScope('email');
-  //   provider.addScope('profile');
-  //   handleSocialLogin(provider);
-  // };
+  const handleMicrosoftLogin = () => {
+    const provider = new OAuthProvider('microsoft.com');
+    provider.addScope('openid');
+    provider.addScope('email');
+    provider.addScope('profile');
+    handleSocialLogin(provider);
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -179,7 +179,7 @@ export default function SignupPage() {
             />
           </motion.div>
 
-          {/* <motion.div
+          <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="relative"
@@ -220,7 +220,7 @@ export default function SignupPage() {
                 delay: 0.5
               }}
             />
-          </motion.div> */}
+          </motion.div>
         </div>
       </motion.div>
     </main>
