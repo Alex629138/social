@@ -122,7 +122,7 @@ export default function Home() {
     <ProtectedRoute>
       <AppNavbar />
       <main className="md:mt-12 px-4 mt-6 pb-12 min-h-screen max-w-3xl mx-auto">
-          <div className="flex items-center flex-wrap">
+          <div>
             <h1 className="flex items-center text-2xl font-bold mb-2">
               <CirclePlus className="mr-2 h-6 w-6" />
                 Create A Post

@@ -164,20 +164,22 @@ export default function FeedPage() {
       <AppNavbar />
       <main className="md:mt-12 mt-6 px-4 pb-12 min-h-screen max-w-3xl mx-auto">
         <div className="flex justify-between flex-wrap">
-          <h1 className="flex gap-2 items-center text-2xl font-bold mb-2 lg:mb-0">
-            <RadioTower className="h-6 w-6"/>
-            Community Feed
-          </h1>
-          <Button className="border bg-white text-black hover:bg-yellow-500 transition-colors mb-2 lg:mb-0">
+          <div>
+            <h1 className="flex gap-2 items-center text-2xl font-bold mb-2 lg:mb-0">
+              <RadioTower className="h-6 w-6"/>
+              Community Feed
+            </h1>
+            <p className="text-muted-foreground mb-2">
+              See what your friends are posting
+            </p>
+          </div>
+          <Button className="border bg-white text-black hover:bg-yellow-500 transition-colors mb-6 lg:mb-0">
             <Edit/>
             <Link href="/create-post">
               Create Post
             </Link>
           </Button>
         </div>
-        <p className="text-muted-foreground mb-6">
-          See what your friends are posting
-        </p>
         {loading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
@@ -207,19 +209,21 @@ export default function FeedPage() {
                       {post.displayName?.[0]?.toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <h3 className="font-semibold flex gap-3 items-center">
-                      {post.displayName || "Anonymous"}
-                      {post.badge == "First Post" &&
-                        <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5">
-                        {post.badge}
-                        <BadgeCheck className="fill-yellow-200 text-yellow-950"/>
-                      </span>
-                      }
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDate(post.createdAt)}
-                    </p>
+                  <div className="flex items-center flex-wrap gap-1 sm:gap-3">
+                    <div>
+                      <h3 className="font-semibold">
+                        {post.displayName || "Anonymous"}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDate(post.createdAt)}
+                      </p>
+                    </div>
+                    {post.badge == "First Post" &&
+                      <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5 h-fit w-fit">
+                      {post.badge}
+                      <BadgeCheck className="fill-yellow-200 text-yellow-950"/>
+                    </span>
+                    }
                   </div>
                 </CardHeader>
 
