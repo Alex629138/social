@@ -5,7 +5,7 @@ import { arrayRemove, arrayUnion, collection, doc, addDoc, getDoc, onSnapshot, o
 import { firestore, db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Heart, MessageCircle, Send, RadioTower, Edit, Sparkle, Sparkles, PencilOff } from "lucide-react";
+import { Loader2, MessageCircle, Send, RadioTower, Edit, Sparkles, PencilOff, BadgeCheck } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -17,6 +17,7 @@ import Link from "next/link";
 type Post = {
   id: string;
   displayName: string;
+  badge: string;
   photoURL?: string;
   content: string;
   imageUrl?: string;
@@ -194,10 +195,10 @@ export default function FeedPage() {
           </div>
         ) : (
           <div className="space-y-6">
-            {posts.map((post) => (
+            {posts.map((post, index) => (
               <Card
                 key={post.id}
-                className="border shadow-sm rounded-xl"
+                className={index == 0 ? "border-4 border-yellow-500 bg-yellow-100 shadow-2xl scale-[1.02]" : "border shadow-sm rounded-xl"}
               >
                 <CardHeader className="px-6 flex items-center gap-2">
                   <Avatar className="h-10 w-10">
@@ -207,8 +208,14 @@ export default function FeedPage() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <h3 className="font-semibold">
+                    <h3 className="font-semibold flex gap-3 items-center">
                       {post.displayName || "Anonymous"}
+                      {post.badge == "First Post" &&
+                        <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5">
+                        {post.badge}
+                        <BadgeCheck className="fill-yellow-200 text-yellow-950"/>
+                      </span>
+                      }
                     </h3>
                     <p className="text-xs text-muted-foreground">
                       {formatDate(post.createdAt)}
@@ -274,7 +281,7 @@ export default function FeedPage() {
                       onChange={(e) =>
                         setCommentInputs({ ...commentInputs, [post.id]: e.target.value })
                       }
-                      className="flex-1"
+                      className="flex-1 border border-black"
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();

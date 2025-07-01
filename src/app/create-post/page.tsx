@@ -13,8 +13,12 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from "sonner";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
+import { useUserData } from "@/hooks/useUserData";
 
 export default function Home() {
+  const { user } = useAuth();
+  const { data: profileData } = useUserData(user?.uid);
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -83,6 +87,7 @@ export default function Home() {
           displayName: user.displayName || "Anonymous",
           photoURL: user.photoURL || null,
           content,
+          badge: profileData?.badge || "New User",
           imageUrl,
           likes: [],
           comments: [],

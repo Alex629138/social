@@ -77,7 +77,8 @@ export default function ProfilePage() {
 
   // Combine profile data with auth user data
   const userPhotoURL = user.photoURL;
-  const userDisplayName = user.displayName;
+  const userDisplayName = profileData?.displayName || user.displayName;
+  const userBadge = profileData?.badge || "New User";
   const userBio = profileData?.bio || "";
 
   return (
@@ -138,8 +139,9 @@ export default function ProfilePage() {
                       className="text-center text-xl font-bold"
                     />
                   ) : (
-                    <h2 className="text-2xl font-bold text-center">
-                      {userDisplayName || "Anonymous"}
+                    <h2 className="text-2xl font-bold text-center flex gap-2 items-center">
+                      {userDisplayName || "Anonymous"}{" "}
+                      <span className={userBadge == "First User" ? "px-1 py-1 bg-yellow-300" : "text-xs rounded-xl px-3 py-1 bg-blue-300"}>{userBadge}</span>
                     </h2>
                   )}
                   
