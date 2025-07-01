@@ -18,6 +18,7 @@ type Post = {
   id: string;
   displayName: string;
   badge: string;
+  userBadge: string;
   photoURL?: string;
   content: string;
   imageUrl?: string;
@@ -200,7 +201,7 @@ export default function FeedPage() {
             {posts.map((post, index) => (
               <Card
                 key={post.id}
-                className={index == 0 ? "border-4 border-yellow-500 bg-yellow-100 shadow-2xl scale-[1.02]" : "border shadow-sm rounded-xl"}
+                className={index == posts.length - 1 ? "border-4 border-yellow-500 bg-yellow-100 shadow-2xl scale-[1.02]" : "border shadow-sm rounded-xl"}
               >
                 <CardHeader className="px-6 flex items-center gap-2">
                   <Avatar className="h-10 w-10">
@@ -218,6 +219,12 @@ export default function FeedPage() {
                         {formatDate(post.createdAt)}
                       </p>
                     </div>
+                    {post.userBadge == "First User" &&
+                      <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5 h-fit w-fit">
+                      {post.userBadge}
+                      <BadgeCheck className="fill-yellow-200 text-yellow-950"/>
+                    </span>
+                    }
                     {post.badge == "First Post" &&
                       <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5 h-fit w-fit">
                       {post.badge}

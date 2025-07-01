@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Edit, Settings } from "lucide-react";
+import { MoreVertical, Edit, Settings, Award, Zap } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -78,7 +78,7 @@ export default function ProfilePage() {
   // Combine profile data with auth user data
   const userPhotoURL = user.photoURL;
   const userDisplayName = profileData?.displayName || user.displayName;
-  const userBadge = profileData?.badge || "New User";
+  const userBadge = profileData?.userBadge || "New User";
   const userBio = profileData?.bio || "";
 
   return (
@@ -139,10 +139,17 @@ export default function ProfilePage() {
                       className="text-center text-xl font-bold"
                     />
                   ) : (
-                    <h2 className="text-2xl font-bold text-center flex gap-2 items-center">
-                      {userDisplayName || "Anonymous"}{" "}
-                      <span className={userBadge == "First User" ? "px-1 py-1 bg-yellow-300" : "text-xs rounded-xl px-3 py-1 bg-blue-300"}>{userBadge}</span>
-                    </h2>
+                    <div className="grid grid-cols-1 justify-center gap-2 sm:flex items-center">
+                      <h2 className="text-2xl font-bold text-center flex gap-2 items-center">
+                        {userDisplayName || "Anonymous"}
+                      </h2>
+                      {userBadge == "First User" && 
+                        <span className="flex items-center gap-1 bg-yellow-600 px-1 py-0.5 rounded-xl w-fit h-fit mx-auto">
+                          <p className="text-white text-xs pl-1">{userBadge}</p>
+                          <Zap className="fill-yellow-200 text-black"/>
+                        </span>
+                      }
+                    </div>
                   )}
                   
                   <Badge variant="secondary" className="px-3 py-1">
