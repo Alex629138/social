@@ -174,7 +174,7 @@ export default function LegalPage() {
           >
             <Button 
               variant="outline" 
-              className="bg-yellow-500 hover:bg-yellow-600 text-black"
+              className="bg-yellow-500 text-black hover:text-white hover:bg-black cursor-pointer"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             >
               Back to Top
