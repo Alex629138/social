@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { signInWithPopup, GoogleAuthProvider, OAuthProvider } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, TwitterAuthProvider, OAuthProvider } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { saveUserToFirestore } from "@/lib/saveUserToFirestore";
-import { BsGoogle, BsMicrosoft } from "react-icons/bs";
+import { BsGoogle, BsMicrosoft, BsTwitterX } from "react-icons/bs";
 import Image from "next/image";
 
 export default function SignupPage() {
-  const [isLoading, setIsLoading] = useState<null | 'google' | 'microsoft'>(null);
+  const [isLoading, setIsLoading] = useState<null | 'google' | 'microsoft' | 'twitter'>(null);
   const [error, setError] = useState("");
   const router = useRouter();
   const [bubbles, setBubbles] = useState<Array<{
@@ -22,8 +22,8 @@ export default function SignupPage() {
     delay: number;
   }>>([]);
 
-  const handleSocialLogin = async (provider: GoogleAuthProvider | OAuthProvider) => {
-    setIsLoading(provider instanceof GoogleAuthProvider ? 'google' : 'microsoft');
+  const handleSocialLogin = async (provider: GoogleAuthProvider | OAuthProvider | TwitterAuthProvider) => {
+    setIsLoading(provider instanceof GoogleAuthProvider ? 'google' : TwitterAuthProvider ? 'twitter' : 'microsoft');
     setError("");
 
     try {
@@ -41,6 +41,11 @@ export default function SignupPage() {
 
   const handleGoogleLogin = () => {
     const provider = new GoogleAuthProvider();
+    handleSocialLogin(provider);
+  };
+
+  const handleTwitterLogin = () => {
+    const provider = new TwitterAuthProvider();
     handleSocialLogin(provider);
   };
 
@@ -126,7 +131,7 @@ export default function SignupPage() {
         </div>
 
         {/* Floating provider circles */}
-        <div className="flex justify-around lg:flex-row lg:justify-between items-center space-y-8">
+        <div className="flex flex-wrap justify-around lg:flex-row lg:justify-between items-center space-y-8">
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -141,7 +146,7 @@ export default function SignupPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="relative"
-          >
+            >
             <motion.button
               onClick={handleGoogleLogin}
               disabled={!!isLoading}
@@ -156,7 +161,7 @@ export default function SignupPage() {
                 y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
                 rotate: isLoading === 'google' ? { duration: 1, repeat: Infinity, ease: "linear" } : {}
               }}
-            >
+              >
               {isLoading === 'google' ? (
                 <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"/>
               ) : (
@@ -167,7 +172,7 @@ export default function SignupPage() {
               )}
             </motion.button>
             <motion.div
-              className="absolute -inset-2 bg-yellow-500/20 rounded-full -z-10"
+              className="absolute -inset-2 bg-yellow-500 rounded-full -z-10"
               animate={{
                 scale: [1, 1.2, 1],
                 opacity: [0.3, 0, 0.3]
@@ -179,6 +184,48 @@ export default function SignupPage() {
             />
           </motion.div>
 
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative"
+            >
+            <motion.button
+              onClick={handleTwitterLogin}
+              disabled={!!isLoading}
+              className={`w-24 h-24 hover:bg-black hover:text-white rounded-full bg-gray-400 shadow-lg flex flex-col items-center justify-center ${
+                isLoading === 'twitter' ? 'cursor-wait' : 'cursor-pointer hover:shadow-xl'
+              }`}
+              animate={{
+                y: [0, -10, 0],
+                rotate: isLoading === 'twitter' ? [0, 360] : 0
+              }}
+              transition={{
+                y: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 },
+                rotate: isLoading === 'twitter' ? { duration: 1, repeat: Infinity, ease: "linear" } : {}
+              }}
+            >
+              {isLoading === 'twitter' ? (
+                <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"/>
+              ) : (
+                <>
+                  <BsTwitterX className="text-3xl mb-1"/>
+                  <span className="text-sm font-medium">Twitter/X</span>
+                </>
+              )}
+            </motion.button>
+            <motion.div
+              className="absolute -inset-2 bg-gray-500 rounded-full -z-10"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0, 0.3]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                delay: 0.5
+              }}
+            />
+          </motion.div>
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -209,7 +256,7 @@ export default function SignupPage() {
               )}
             </motion.button>
             <motion.div
-              className="absolute -inset-2 bg-blue-500/20 rounded-full -z-10"
+              className="absolute -inset-2 bg-blue-500 rounded-full -z-10"
               animate={{
                 scale: [1, 1.2, 1],
                 opacity: [0.3, 0, 0.3]
