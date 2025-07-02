@@ -8,6 +8,8 @@ import { auth } from "@/lib/firebase";
 import { saveUserToFirestore } from "@/lib/saveUserToFirestore";
 import { BsGoogle, BsMicrosoft, BsTwitterX } from "react-icons/bs";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState<null | 'google' | 'microsoft' | 'twitter'>(null);
@@ -97,8 +99,8 @@ export default function SignupPage() {
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="w-full max-w-md z-10"
-      >
+        className="w-full max-w-md z-10 flex flex-col items-center justify-center"
+        >
         <div className="flex flex-col items-center mb-12">
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -131,7 +133,7 @@ export default function SignupPage() {
         </div>
 
         {/* Floating provider circles */}
-        <div className="flex flex-wrap justify-around lg:flex-row lg:justify-between items-center space-y-8">
+        <div className="w-full flex flex-wrap lg:flex-row justify-between items-center space-y-8 mb-12">
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -269,6 +271,11 @@ export default function SignupPage() {
             />
           </motion.div>
         </div>
+        <Link href="/legal">
+          <Button className="w-full max-w-xs text-black bg-yellow-500 hover:bg-black hover:text-white font-semibold py-3 rounded-lg cursor-pointer transition-colors">
+            Terms of Service and Privacy Policy
+          </Button>
+        </Link>
       </motion.div>
     </main>
   );

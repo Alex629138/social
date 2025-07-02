@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, ShieldCheck, Lock, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export default function LegalPage() {
@@ -12,17 +12,20 @@ export default function LegalPage() {
     x: number;
     y: number;
     size: number;
+    color: string;
     duration: number;
     delay: number;
   }>>([]);
 
   useEffect(() => {
     const handleResize = () => {
+      const colors = ["#facc15", "#fde68a", "#fef3c7", "#fef9c3"];
       setBubbles(
-        Array.from({ length: 15 }, () => ({
+        Array.from({ length: 20 }, () => ({
           x: Math.random() * (window.innerWidth - 40),
           y: Math.random() * (window.innerHeight - 40) + 40,
           size: Math.random() * 30 + 20,
+          color: colors[Math.floor(Math.random() * colors.length)],
           duration: Math.random() * 10 + 8,
           delay: Math.random() * 5,
         }))
@@ -41,6 +44,7 @@ export default function LegalPage() {
   const legalSections = {
     terms: {
       title: "Terms of Service",
+      icon: <ShieldCheck className="text-yellow-500 mr-2" size={28} />,
       content: [
         {
           title: "1. Acceptance of Terms",
@@ -48,7 +52,7 @@ export default function LegalPage() {
         },
         {
           title: "2. User Responsibilities",
-          text: "You're responsible for all content you post and activity that occurs under your account. Keep your password secure and notify us immediately of any unauthorized use."
+          text: "You're responsible for all content you post and activity that occurs under your account. Keep your account secure and notify us immediately of any unauthorized use."
         },
         {
           title: "3. Content Ownership",
@@ -58,6 +62,7 @@ export default function LegalPage() {
     },
     privacy: {
       title: "Privacy Policy",
+      icon: <Lock className="text-yellow-500 mr-2" size={28} />,
       content: [
         {
           title: "1. Information We Collect",
@@ -78,8 +83,8 @@ export default function LegalPage() {
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-white to-yellow-50 overflow-hidden">
       <Navbar />
-      
-      {/* Floating bubbles */}
+
+      {/* Bubbles */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {bubbles.map((b, i) => (
           <motion.div
@@ -87,48 +92,50 @@ export default function LegalPage() {
             initial={{ x: b.x, y: b.y }}
             animate={{ y: [b.y, -b.size], opacity: [1, 0] }}
             transition={{ duration: b.duration, repeat: Infinity, delay: b.delay }}
-            className="absolute bg-yellow-500/20 rounded-full blur-sm"
-            style={{ width: b.size, height: b.size }}
+            className="absolute rounded-full blur-sm"
+            style={{ width: b.size, height: b.size, backgroundColor: b.color }}
           />
         ))}
       </div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.6 }}
         className="container mx-auto px-4 py-20 z-10 relative"
       >
-        <motion.div 
-          whileHover={{ scale: 1.02 }}
-          className="flex justify-center mb-12"
+        <motion.div
+          whileHover={{ scale: 1.03 }}
+          className="flex justify-center items-center mb-12"
         >
+          <Sparkles className="text-yellow-500 mr-3 animate-pulse" size={36} />
           <h1 className="text-4xl font-bold">
             <span className="text-black">Legal</span>
-            <span className="text-yellow-500">Center</span>
+            <span className="text-yellow-500"> Center</span>
           </h1>
         </motion.div>
 
         <div className="max-w-3xl mx-auto space-y-6">
-          {Object.entries(legalSections).map(([key, section]) => (
-            <motion.div 
+          {Object.entries(legalSections).map(([key, section], idx) => (
+            <motion.div
               key={key}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: key === 'terms' ? 0.2 : 0.4 }}
-              className="bg-white rounded-xl shadow-lg overflow-hidden border border-yellow-100"
+              transition={{ delay: 0.2 * (idx + 1) }}
+              className="bg-white rounded-xl shadow-xl overflow-hidden border border-yellow-100"
             >
               <button
                 onClick={() => toggleSection(key)}
-                className="w-full flex justify-between items-center p-6 text-left"
+                className="w-full flex justify-between items-center p-6 text-left hover:bg-yellow-50 transition cursor-pointer"
               >
-                <h2 className="text-2xl font-semibold text-gray-800">
+                <div className="flex items-center text-2xl font-semibold text-gray-800">
+                  {section.icon}
                   {section.title}
-                </h2>
+                </div>
                 {activeSection === key ? (
-                  <ChevronUp className="h-6 w-6 text-yellow-500" />
+                  <ChevronUp className="h-6 w-6 text-yellow-500 transition-transform rotate-180" />
                 ) : (
-                  <ChevronDown className="h-6 w-6 text-yellow-500" />
+                  <ChevronDown className="h-6 w-6 text-yellow-500 transition-transform" />
                 )}
               </button>
 
@@ -138,7 +145,7 @@ export default function LegalPage() {
                   height: activeSection === key ? 'auto' : 0,
                   opacity: activeSection === key ? 1 : 0
                 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.4 }}
                 className="px-6 overflow-hidden"
               >
                 <div className="pb-6 space-y-6">
@@ -172,9 +179,9 @@ export default function LegalPage() {
             transition={{ delay: 0.6 }}
             className="text-center pt-8"
           >
-            <Button 
-              variant="outline" 
-              className="bg-yellow-500 text-black hover:text-white hover:bg-black cursor-pointer"
+            <Button
+              variant="outline"
+              className="bg-yellow-500 text-black hover:text-white hover:bg-black cursor-pointer transition"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             >
               Back to Top
