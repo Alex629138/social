@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import DarkModeButton from "@/components/DarkModeButton";
 import { cn } from "@/lib/utils";
 import { LogOut, MenuIcon } from "lucide-react";
 import { signOut } from "firebase/auth";
@@ -13,7 +14,6 @@ import { auth } from "@/lib/firebase";
 
 const links = [
   { href: "/", label: "Home" },
-  { href: "/feed", label: "Feed" },
   { href: "/messages", label: "Messages" },
   { href: "/notifications", label: "Notifications" },
   { href: "/people", label: "People" },
@@ -37,7 +37,7 @@ export default function Navbar() {
             height="36"
             src="/logo.jpg" 
             alt="Logo" />
-          <span className="text-black">Feed</span>
+          <span className="text-muted">Feed</span>
           <span className="text-yellow-500">Link</span>
         </Link>
 
@@ -51,13 +51,13 @@ export default function Navbar() {
                   href={href}
                   className={cn(
                     "text-sm font-medium transition-colors",
-                    pathname === href ? "text-white px-3 py-2 bg-primary rounded-md" : "text-muted-foreground hover:text-primary"
+                    pathname === href ? "px-3 py-2 bg-muted rounded-md" : "text-muted-foreground hover:text-primary"
                   )}
                 >
                   {label}
                 </Link>
               ))}
-
+              <DarkModeButton />
               <DropdownMenu>
                 <DropdownMenuTrigger>
                   <Avatar className="h-8 w-8">
@@ -111,9 +111,9 @@ export default function Navbar() {
                     <Link
                       href={href}
                       className={cn(
-                        "w-full py-0 rounded-md transition-colors", // Larger text and full width
+                        "w-full py-0 rounded-md transition-colors",
                         pathname === href 
-                          ? "text-white bg-primary font-medium indent-0 py-1.5" 
+                          ? "bg-muted font-medium indent-0 py-1.5" 
                           : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                       )}
                     >
