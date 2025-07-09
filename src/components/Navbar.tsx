@@ -96,11 +96,12 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Menu Placeholder */}
-        <div className="md:hidden">
+        <div className="md:hidden flex gap-4">
+          <DarkModeButton/>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="bg-transparent text-black">
-                <MenuIcon className="h-6 w-6"/>
+              <Button className="bg-transparent border">
+                <MenuIcon className="h-6 w-6 text-yellow-500"/>
               </Button>
             </DropdownMenuTrigger>
             
