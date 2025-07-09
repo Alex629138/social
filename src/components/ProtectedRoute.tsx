@@ -11,12 +11,14 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   const router = useRouter();
 
   useEffect(() => {
+    console.log("Checking redirect:", { user, loading });
     if (!loading && !user) {
-      router.push("/login");
+      router.replace("/login"); // try .replace instead of .push
     }
   }, [user, loading, router]);
+  
 
-  if (loading || !user) {
+  if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-background to-muted p-4">
         {/* Animated security shield */}
@@ -129,6 +131,10 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         </motion.div>
       </div>
     );
+  }
+
+  if (!user && typeof window !== "undefined") {
+    return null; // avoid rendering during redirect
   }
 
   return <>{children}</>;
