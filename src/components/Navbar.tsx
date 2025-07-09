@@ -37,7 +37,7 @@ export default function Navbar() {
             height="36"
             src="/logo.jpg" 
             alt="Logo" />
-          <span className="text-muted">Feed</span>
+          <span>Feed</span>
           <span className="text-yellow-500">Link</span>
         </Link>
 
