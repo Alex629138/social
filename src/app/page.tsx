@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { arrayRemove, arrayUnion, collection, doc, addDoc, getDoc, onSnapshot, orderBy, query, serverTimestamp, Timestamp, updateDoc } from "firebase/firestore";
 import { firestore, db } from "@/lib/firebase";
-import { CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { CardContent, CardHeader } from "@/components/ui/card";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, MessageCircle, Send, RadioTower, Edit, Sparkles, PencilOff, BadgeCheck } from "lucide-react";
+import { Loader2, MessageCircle, Send, RadioTower, Edit, Sparkles, PencilOff, BadgeCheck, MessageCircleOff } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
@@ -208,30 +208,43 @@ export default function FeedPage() {
                 className="py-4 border rounded-none md:rounded-3xl md:mx-5shadow-sm"
               >
                 <CardHeader className="px-6 flex items-center gap-2">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={post.photoURL ?? "/placeholder.png"} alt="User Avatar" />
-                    <AvatarFallback>
-                      {post.displayName?.[0]?.toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex items-center flex-wrap gap-1 sm:gap-3">
-                    <div>
-                      <h3 className="font-semibold">
+                  <div className="flex items-center justify-between flex-wrap gap-1 sm:gap-3">
+                    <div className="flex gap-0 flex-wrap items-center">
+                      <Avatar className="h-10 w-10 mr-3">
+                        <AvatarImage src={post.photoURL ?? "/placeholder.png"} alt="User Avatar" />
+                        <AvatarFallback>
+                          {post.displayName?.[0]?.toUpperCase() || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <h2 className="font-semibold">
                         {post.displayName || "Anonymous"}
-                      </h3>
-                    </div>
-                    {post.userBadge == "First User" &&
-                      <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5 h-fit w-fit">
-                      {post.userBadge}
-                      <BadgeCheck className="fill-yellow-200 text-yellow-950"/>
-                    </span>
-                    }
-                    {post.badge == "First Post" &&
-                      <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5 h-fit w-fit">
-                      {post.badge}
-                      <BadgeCheck className="fill-yellow-200 text-yellow-950"/>
-                    </span>
-                    }
+                      </h2>
+                    
+                      {post.userBadge == "First User" ?
+                        (
+                        <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5 h-fit w-fit">
+                          {post.userBadge}
+                          <BadgeCheck className="fill-yellow-200 text-yellow-950"/>
+                        </span>
+                        )
+                        : post.userBadge == "Verified" ?
+                        (
+                        <span>
+                          <BadgeCheck className="fill-blue-500 text-white h-5 w-5 mr-3"/>
+                        </span>
+                        ) : null
+                      }
+                      
+                      {post.badge == "First Post" &&
+                        <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5 h-fit w-fit">
+                          {post.badge}
+                          <BadgeCheck className="fill-yellow-200 text-yellow-950 text-xs"/>
+                        </span>
+                      }
+                   </div>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDate(post.createdAt)}
+                    </p>
                   </div>
                 </CardHeader>
 
@@ -280,11 +293,6 @@ export default function FeedPage() {
                     </Button>
                   </div>
                 </CardContent>
-                <CardFooter>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(post.createdAt)}
-                  </p>
-                </CardFooter>
 
                 {isDesktop ?     
                   <Dialog open={openComments === post.id} onOpenChange={(open) => setOpenComments(open ? post.id : null)}>
@@ -319,8 +327,9 @@ export default function FeedPage() {
                             ))}
                           </div>
                         ) : (
-                          <div className="text-center py-8 text-muted-foreground">
-                            No comments yet. Be the first to comment!
+                          <div className="flex flex-col justify-center items-center gap-3 text-center py-8 text-muted-foreground">
+                            <MessageCircleOff className="h-15 w-15"/>
+                            Be the first to comment!
                           </div>
                         )}
                       </div>
@@ -367,7 +376,7 @@ export default function FeedPage() {
                           }}
                           disabled={!commentInputs[post.id]?.trim()}
                         >
-                          Post
+                          <Send className="h-10 w-10"/>
                         </Button>
                       </div>
                     </DialogContent>
@@ -405,8 +414,9 @@ export default function FeedPage() {
                           ))}
                         </div>
                       ) : (
-                        <div className="text-center py-8 text-muted-foreground">
-                          No comments yet. Be the first to comment!
+                        <div className="flex flex-col justify-center items-center gap-3 text-center py-8 text-muted-foreground">
+                          <MessageCircleOff className="h-15 w-15"/>
+                          Be the first to comment!
                         </div>
                       )}
                       
@@ -453,8 +463,9 @@ export default function FeedPage() {
                             });
                           }}
                           disabled={!commentInputs[post.id]?.trim()}
+                          className=""
                         >
-                          Post
+                          <Send className="h-10 w-10"/>
                         </Button>
                       </div>
                     </div>
