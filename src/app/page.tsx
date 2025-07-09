@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { arrayRemove, arrayUnion, collection, doc, addDoc, getDoc, onSnapshot, orderBy, query, serverTimestamp, Timestamp, updateDoc } from "firebase/firestore";
 import { firestore, db } from "@/lib/firebase";
 import { CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, MessageCircle, Send, RadioTower, Edit, Sparkles, PencilOff, BadgeCheck } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import AppNavbar from "@/components/Navbar";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -40,6 +43,7 @@ export default function FeedPage() {
   const [commentInputs, setCommentInputs] = useState<{ [postId: string]: string }>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
   const [commentAuthors, setCommentAuthors] = useState<Record<string, { displayName: string; photoURL?: string }>>({});
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const { user } = useAuth();
 
   useEffect(() => {
@@ -279,6 +283,183 @@ export default function FeedPage() {
                     </Button>
                   </div>
                 </CardContent>
+
+                {isDesktop ?     
+                  <Dialog open={openComments === post.id} onOpenChange={(open) => setOpenComments(open ? post.id : null)}>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Comments</DialogTitle>
+                        <DialogDescription>{post.comments?.length || 0} comments</DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
+                        {post.comments?.length ? (
+                          <div className="space-y-4">
+                            {post.comments.map((comment, index) => (
+                              <div key={index} className="flex gap-3">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage src={comment.photoURL || commentAuthors[comment.uid]?.photoURL || "/placeholder.png"} />
+                                  <AvatarFallback>
+                                    {comment.displayName?.[0]?.toUpperCase() || "U"}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium text-sm">
+                                      {comment.displayName || commentAuthors[comment.uid]?.displayName || "Anonymous"}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {formatDate(comment.createdAt)}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm mt-1">{comment.content}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8 text-muted-foreground">
+                            No comments yet. Be the first to comment!
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-2 mt-4">
+                        <Input
+                          placeholder="Write a comment..."
+                          value={commentInputs[post.id] || ""}
+                          onChange={(e) => setCommentInputs(prev => ({
+                            ...prev,
+                            [post.id]: e.target.value
+                          }))}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              addComment(post.id);
+                              notifyUser({
+                                userId: post.uid,
+                                type: "comment",
+                                postId: post.id,
+                                fromUser: {
+                                  uid: user.uid,
+                                  displayName: user.displayName || "Anonymous",
+                                  photoURL: user.photoURL || "",
+                                },
+                                content: commentInputs[post.id]?.trim()
+                              });
+                            }
+                          }}
+                        />
+                        <Button 
+                          onClick={() => {
+                            addComment(post.id);
+                            notifyUser({
+                              userId: post.uid,
+                              type: "comment",
+                              postId: post.id,
+                              fromUser: {
+                                uid: user.uid,
+                                displayName: user.displayName || "Anonymous",
+                                photoURL: user.photoURL || "",
+                              },
+                              content: commentInputs[post.id]?.trim()
+                            });
+                          }}
+                          disabled={!commentInputs[post.id]?.trim()}
+                        >
+                          Post
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  :
+                 <Drawer open={openComments === post.id} onOpenChange={(open) => setOpenComments(open ? post.id : null)}>
+                  <DrawerContent className="max-h-[80vh]">
+                    <DrawerHeader className="text-left px-6">
+                      <DrawerTitle>Comments</DrawerTitle>
+                      <DrawerDescription>{post.comments?.length || 0} comments</DrawerDescription>
+                    </DrawerHeader>
+                    <div className="px-6 pb-6 overflow-y-auto">
+                      {post.comments?.length ? (
+                        <div className="space-y-4">
+                          {post.comments.map((comment, index) => (
+                            <div key={index} className="flex gap-3 border border-red-500">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={comment.photoURL || commentAuthors[comment.uid]?.photoURL || "/placeholder.png"} />
+                                <AvatarFallback>
+                                  {comment.displayName?.[0]?.toUpperCase() || "U"}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium text-sm">
+                                    {comment.displayName || commentAuthors[comment.uid]?.displayName || "Anonymous"}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {formatDate(comment.createdAt)}
+                                  </span>
+                                </div>
+                                <p className="text-sm mt-1">{comment.content}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                          No comments yet. Be the first to comment!
+                        </div>
+                      )}
+                      
+                      {/* Comment input form */}
+                      <div className="mt-6 flex gap-2">
+                        <Input
+                          placeholder="Write a comment..."
+                          value={commentInputs[post.id] || ""}
+                          onChange={(e) => setCommentInputs(prev => ({
+                            ...prev,
+                            [post.id]: e.target.value
+                          }))}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              addComment(post.id);
+                              notifyUser({
+                                userId: post.uid,
+                                type: "comment",
+                                postId: post.id,
+                                fromUser: {
+                                  uid: user.uid,
+                                  displayName: user.displayName || "Anonymous",
+                                  photoURL: user.photoURL || "",
+                                },
+                                content: commentInputs[post.id]?.trim()
+                              });
+                            }
+                          }}
+                        />
+                        <Button 
+                          onClick={() => {
+                            addComment(post.id);
+                            notifyUser({
+                              userId: post.uid,
+                              type: "comment",
+                              postId: post.id,
+                              fromUser: {
+                                uid: user.uid,
+                                displayName: user.displayName || "Anonymous",
+                                photoURL: user.photoURL || "",
+                              },
+                              content: commentInputs[post.id]?.trim()
+                            });
+                          }}
+                          disabled={!commentInputs[post.id]?.trim()}
+                        >
+                          Post
+                        </Button>
+                      </div>
+                    </div>
+                  </DrawerContent>
+                </Drawer>
+              }
               </section>
             ))}
           </div>
