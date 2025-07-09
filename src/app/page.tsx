@@ -370,7 +370,6 @@ export default function FeedPage() {
                       </div>
                     </DialogContent>
                   </Dialog>
-
                   :
                  <Drawer open={openComments === post.id} onOpenChange={(open) => setOpenComments(open ? post.id : null)}>
                   <DrawerContent className="max-h-[80vh]">
@@ -382,7 +381,7 @@ export default function FeedPage() {
                       {post.comments?.length ? (
                         <div className="space-y-4">
                           {post.comments.map((comment, index) => (
-                            <div key={index} className="flex gap-3 border border-red-500">
+                            <div key={index} className="flex gap-3">
                               <Avatar className="h-8 w-8">
                                 <AvatarImage src={comment.photoURL || commentAuthors[comment.uid]?.photoURL || "/placeholder.png"} />
                                 <AvatarFallback>

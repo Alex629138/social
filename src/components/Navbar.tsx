@@ -57,7 +57,9 @@ export default function Navbar() {
                   {label}
                 </Link>
               ))}
+
               <DarkModeButton />
+              
               <DropdownMenu>
                 <DropdownMenuTrigger>
                   <Avatar className="h-8 w-8">
