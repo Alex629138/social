@@ -219,9 +219,6 @@ export default function FeedPage() {
                       <h3 className="font-semibold">
                         {post.displayName || "Anonymous"}
                       </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDate(post.createdAt)}
-                      </p>
                     </div>
                     {post.userBadge == "First User" &&
                       <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5 h-fit w-fit">
@@ -283,6 +280,11 @@ export default function FeedPage() {
                     </Button>
                   </div>
                 </CardContent>
+                <CardFooter>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDate(post.createdAt)}
+                  </p>
+                </CardFooter>
 
                 {isDesktop ?     
                   <Dialog open={openComments === post.id} onOpenChange={(open) => setOpenComments(open ? post.id : null)}>
