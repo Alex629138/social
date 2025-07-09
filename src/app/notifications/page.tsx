@@ -138,9 +138,9 @@ export default function NotificationsPage() {
                       "p-4 rounded-xl transition-all border mb-4",
                       n.read 
                         ? "bg-muted/30 hover:bg-muted/50" 
-                        : "bg-white shadow-sm hover:shadow-md"
+                        : "bg-yellow-100/20 shadow-sm hover:shadow-md"
                     )}
-                  >
+                    >
                     <div className="flex justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
@@ -148,7 +148,7 @@ export default function NotificationsPage() {
                           <AvatarFallback>{n.fromDisplayName?.[0] || "U"}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <p className="text-sm text-foreground">
+                          <p className="text-sm">
                             <span className="font-medium">{n.fromDisplayName}</span>{" "}
                             {n.type === "like"
                               ? "liked your post"
