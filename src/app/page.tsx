@@ -242,7 +242,7 @@ export default function FeedPage() {
                     <img
                       src={post.imageUrl}
                       alt="Post Image"
-                      className="rounded-md border w-full max-h-[400px] object-cover"
+                      className="rounded-md border w-fit height-fit object-fit"
                     />
                   )}
                   
