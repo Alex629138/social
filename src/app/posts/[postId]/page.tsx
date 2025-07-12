@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
-import { Loader2, MessageCircleOff } from "lucide-react";
+import { Loader2, MessageCircle, MessageCircleOff, Sparkle } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AppNavbar from "@/components/Navbar";
@@ -38,8 +38,8 @@ export default function PostPage() {
             <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
           </div>
         ) : post ? (
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="border shadow-lg rounded-xl">
+          <section className="grid grid-cols-1 gap-6">
+            <Card className="min-w-2xl border mx-auto shadow-lg rounded-none lg:rounded-xl">
               <CardHeader className="flex items-center gap-3 px-6 pt-4 pb-2">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={post.photoURL || "/placeholder.png"} />
@@ -62,36 +62,34 @@ export default function PostPage() {
                   />
                 )}
                 <div className="flex items-center gap-10 mt-5">
-                  <p>{post.likes.length} {" "} Likes</p>
-                  <p>{post.comments.length} {" "} Comments</p>
+                  <p className="flex"><Sparkle className="h-5 w-5 mr-2"/>{post.likes.length}</p>
+                  <p className="flex"><MessageCircle className="h-5 w-5 mr-2"/>{post.comments.length}</p>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                Comments
-              </CardHeader>
-              <CardContent>
-                {post.comments.length > 0 ? (
-                  post.comments.map((comment: any, index: number) => (
-                    <div key={index} className="mb-4">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={comment.photoURL || "/placeholder.png"} />
-                        <AvatarFallback>{comment.displayName?.[0] || "U"}</AvatarFallback>
-                      </Avatar>
-                      <div className="ml-3">
-                        <p className="font-semibold">{comment.displayName}</p>
-                        <p>{comment.content}</p>
+                <div className="border-t border-gray-500">
+                  <h2 className="font-semibold mt-6">Comments</h2>
+                  {post.comments.length > 0 ? (
+                    post.comments.map((comment: any, index: number) => (
+                      <div key={index} className="mb-4 bg-muted p-3 rounded-lg">
+                        <div className="flex items-center gap-3 mb-2">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={comment.photoURL || "/placeholder.png"} />
+                            <AvatarFallback>{comment.displayName?.[0] || "U"}</AvatarFallback>
+                          </Avatar>
+                          <p className="">{comment.displayName}</p>
+                          <p className="text-xs text-muted-foreground">{comment.createdAt?.toDate().toLocaleString()}</p>
+                        </div>
+                        <div className="ml-3">
+                          <p>{comment.content}</p>
+                        </div>
                       </div>
+                    ))
+                  ) : (
+                    <div className="flex flex-col justify-center items-center gap-3 text-center py-8 text-muted-foreground">
+                      <MessageCircleOff className="h-15 w-15"/>
+                      <p className="text-muted-foreground">No comments yet.</p>
                     </div>
-                  ))
-                ) : (
-                  <div className="flex flex-col justify-center items-center gap-3 text-center py-8 text-muted-foreground">
-                    <MessageCircleOff className="h-15 w-15"/>
-                    <p className="text-muted-foreground">No comments yet.</p>
-                  </div>
-                )}
+                  )}
+                </div>
               </CardContent>
             </Card>
           </section>

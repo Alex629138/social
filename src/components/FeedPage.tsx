@@ -30,6 +30,7 @@ type Post = {
   comments?: {
     uid: string;
     displayName: string;
+    userBadge: string;
     photoURL?: string;
     content: string;
     createdAt: Timestamp;
@@ -107,7 +108,7 @@ export default function FeedPage() {
       await updateDoc(postRef, {
         comments: arrayUnion({
           uid: user.uid,
-          displayName: user.displayName || "Anonymous",
+          displayName: user.displayName || "Anonymous", // Assuming userBadge is part of user data
           photoURL: user.photoURL || null,
           content,
           createdAt: Timestamp.now(),
@@ -242,13 +243,13 @@ export default function FeedPage() {
                       }
                    </div>
                     <p className="text-sm text-muted-foreground">
-                      {formatDate(post.createdAt)}
+                      {post.createdAt?.toDate().toLocaleString()}
                     </p>
                   </div>
                 </CardHeader>
 
                 <CardContent className="py-6 space-y-3">
-                  <Link href={`/posts/${post.id}`} className="text-sm text-blue-500 hover:underline">
+                  <Link href={`/posts/${post.id}`} className="">
                     <p className="text-sm text-foreground">{post.content}</p>
                     
                     {post.imageUrl && (
