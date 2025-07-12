@@ -32,15 +32,15 @@ export default function PostPage() {
   return (
     <ProtectedRoute>
       <AppNavbar />
-      <main className="pt-12 lg:px-4 max-h-screen">
+      <main className="pt-6 lg:px-4 max-h-screen">
         {loading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
           </div>
         ) : post ? (
           <section className="grid grid-cols-1 gap-6">
-            <Card className="lg:max-w-2xl w-full lg:min-w-xl border mx-auto shadow-lg rounded-none lg:rounded-xl">
-              <CardHeader className="flex items-center gap-3 px-6 pt-4 pb-2">
+            <Card className="lg:max-w-2xl w-full lg:min-w-xl border mx-auto rounded-none lg:rounded-xl border-none shadow-none">
+              <CardHeader className="flex items-center gap-3 px-2 lg:px-4 py-2">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={post.photoURL || "/placeholder.png"} />
                   <AvatarFallback>{post.displayName?.[0] || "U"}</AvatarFallback>
@@ -52,26 +52,28 @@ export default function PostPage() {
                   </p>
                 </div>
               </CardHeader>
-              <CardContent className="px-6 pb-3 space-y-3">
-                <p>{post.content}</p>
-                {post.imageUrl && (
-                  <img
-                    src={post.imageUrl}
-                    alt="Post image"
-                    className="rounded-md border h-fit w-fit object-fit"
-                  />
-                )}
-                <div className="flex items-center gap-10 mt-5">
+              <CardContent className="px-0 lg:px-4 pb-3 space-y-3">
+                <div className="px-4 lg:px-0">
+                  <p>{post.content}</p>
+                  {post.imageUrl && (
+                    <img
+                      src={post.imageUrl}
+                      alt="Post image"
+                      className="h-fit w-fit object-fit"
+                    />
+                  )}
+                </div>
+                <div className="flex items-center gap-10 mt-5 px-4">
                   <p className="flex"><Sparkle className="h-5 w-5 mr-2"/>{post.likes.length}</p>
                   <p className="flex"><MessageCircle className="h-5 w-5 mr-2"/>{post.comments.length}</p>
                 </div>
                 <div className="border-t border-gray-500">
-                  <h2 className="font-semibold mt-6">Comments</h2>
+                  <h2 className="font-semibold text-md my-4 px-4">Comments</h2>
                   {post.comments.length > 0 ? (
                     post.comments.map((comment: any, index: number) => (
-                      <div key={index} className="mb-4 bg-muted p-3 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2 flex-wrap">
-                          <Avatar className="h-8 w-8">
+                      <div key={index} className="w-full mb-4 bg-muted py-3 rounded-none lg:rounded-xl">
+                        <div className="flex items-center mb-2 flex-wrap px-2">
+                          <Avatar className="h-6 w-6 mr-2">
                             <AvatarImage src={comment.photoURL || "/placeholder.png"} />
                             <AvatarFallback>{comment.displayName?.[0] || "U"}</AvatarFallback>
                           </Avatar>
