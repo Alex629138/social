@@ -24,7 +24,7 @@ import AppNavbar from "@/components/Navbar";
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const { data: profileData, loading } = useUserData(user?.uid);
+  const { data: profileData, loading } = useUserData(user?.uid || "");
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ 
     displayName: "", 
