@@ -1,36 +1,39 @@
-import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { firestore } from "@/lib/firebase";
+import { useState, useEffect } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
-export const useUserData = (uid: string | null | undefined) => {
-  const [data, setData] = useState<any | null>(null);
-  const [loading, setLoading] = useState<boolean>(!!uid);
+export function useUserData(userId: string) {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!uid) return;
-
-    const fetchUser = async () => {
+    const fetchData = async () => {
       try {
-        setLoading(true);
-        const docRef = doc(firestore, "users", uid);
+        if (!userId) {
+          setError('No user ID provided');
+          setLoading(false);
+          return;
+        }
+
+        const docRef = doc(db, 'users', userId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          setData({ uid, ...docSnap.data() });
+          setData(docSnap.data());
         } else {
-          setData(null);
+          setError('User not found');
         }
-      } catch (err: any) {
-        console.error("Error fetching user:", err);
-        setError("Failed to load user.");
+      } catch (err) {
+        setError('Failed to fetch user data');
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUser();
-  }, [uid]);
+    fetchData();
+  }, [userId]);
 
   return { data, loading, error };
-};
+}

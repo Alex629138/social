@@ -210,37 +210,39 @@ export default function FeedPage() {
                 <CardHeader className="px-6 flex items-center gap-2">
                   <div className="flex items-center justify-between flex-wrap gap-1 sm:gap-3">
                     <div className="flex gap-0 flex-wrap items-center">
-                      <Avatar className="h-10 w-10 mr-3">
-                        <AvatarImage src={post.photoURL ?? "/placeholder.png"} alt="User Avatar" />
-                        <AvatarFallback>
-                          {post.displayName?.[0]?.toUpperCase() || "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <h2 className="font-semibold">
-                        {post.displayName || "Anonymous"}
-                      </h2>
-                    
-                      {post.userBadge == "First User" ?
-                        (
-                        <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5 h-fit w-fit">
-                          {post.userBadge}
-                          <BadgeCheck className="fill-yellow-200 text-yellow-950"/>
-                        </span>
-                        )
-                        : post.userBadge == "Verified" ?
-                        (
-                        <span>
-                          <BadgeCheck className="fill-blue-500 text-white h-5 w-5 mr-3"/>
-                        </span>
-                        ) : null
-                      }
+                      <Link href={`/profile/${post.uid}`} className="flex items-center">
+                        <Avatar className="h-10 w-10 mr-3">
+                          <AvatarImage src={post.photoURL ?? "/placeholder.png"} alt="User Avatar" />
+                          <AvatarFallback>
+                            {post.displayName?.[0]?.toUpperCase() || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <h2 className="font-semibold">
+                          {post.displayName || "Anonymous"}
+                        </h2>
                       
-                      {post.badge == "First Post" &&
-                        <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5 h-fit w-fit">
-                          {post.badge}
-                          <BadgeCheck className="fill-yellow-200 text-yellow-950 text-xs"/>
-                        </span>
-                      }
+                        {post.userBadge == "First User" ?
+                          (
+                          <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5 h-fit w-fit">
+                            {post.userBadge}
+                            <BadgeCheck className="fill-yellow-200 text-yellow-950"/>
+                          </span>
+                          )
+                          : post.userBadge == "Verified" ?
+                          (
+                          <span>
+                            <BadgeCheck className="fill-blue-500 text-white h-5 w-5 mr-3"/>
+                          </span>
+                          ) : null
+                        }
+                        
+                        {post.badge == "First Post" &&
+                          <span className="text-xs flex items-center gap-2 bg-yellow-600 px-2 rounded-xl text-white py-0.5 h-fit w-fit">
+                            {post.badge}
+                            <BadgeCheck className="fill-yellow-200 text-yellow-950 text-xs"/>
+                          </span>
+                        }
+                      </Link>
                    </div>
                     <p className="text-sm text-muted-foreground">
                       {post.createdAt?.toDate().toLocaleString()}
@@ -308,17 +310,21 @@ export default function FeedPage() {
                           <div className="space-y-4">
                             {post.comments.map((comment, index) => (
                               <div key={index} className="flex gap-3">
-                                <Avatar className="h-8 w-8">
-                                  <AvatarImage src={comment.photoURL || commentAuthors[comment.uid]?.photoURL || "/placeholder.png"} />
-                                  <AvatarFallback>
-                                    {comment.displayName?.[0]?.toUpperCase() || "U"}
-                                  </AvatarFallback>
-                                </Avatar>
+                                <Link href={`/profile/${comment.uid}`}>
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarImage src={comment.photoURL || commentAuthors[comment.uid]?.photoURL || "/placeholder.png"} />
+                                    <AvatarFallback>
+                                      {comment.displayName?.[0]?.toUpperCase() || "U"}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                </Link>
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2">
-                                    <span className="font-medium text-sm">
-                                      {comment.displayName || commentAuthors[comment.uid]?.displayName || "Anonymous"}
-                                    </span>
+                                    <Link href={`/profile/${comment.uid}`} className="flex items-center">
+                                      <span className="font-medium text-sm">
+                                        {comment.displayName || commentAuthors[comment.uid]?.displayName || "Anonymous"}
+                                      </span>
+                                    </Link>
                                     <span className="text-xs text-muted-foreground">
                                       {formatDate(comment.createdAt)}
                                     </span>
@@ -395,17 +401,21 @@ export default function FeedPage() {
                         <div className="space-y-4">
                           {post.comments.map((comment, index) => (
                             <div key={index} className="flex gap-3">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={comment.photoURL || commentAuthors[comment.uid]?.photoURL || "/placeholder.png"} />
-                                <AvatarFallback>
-                                  {comment.displayName?.[0]?.toUpperCase() || "U"}
-                                </AvatarFallback>
-                              </Avatar>
+                              <Link href={`/profile/${comment.uid}`}>
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage src={comment.photoURL || commentAuthors[comment.uid]?.photoURL || "/placeholder.png"} />
+                                  <AvatarFallback>
+                                    {comment.displayName?.[0]?.toUpperCase() || "U"}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </Link>
                               <div className="flex-1">
                                 <div className="flex items-center gap-2">
-                                  <span className="font-medium text-sm">
-                                    {comment.displayName || commentAuthors[comment.uid]?.displayName || "Anonymous"}
-                                  </span>
+                                  <Link href={`/profile/${comment.uid}`} className="flex items-center">
+                                    <span className="font-medium text-sm">
+                                      {comment.displayName || commentAuthors[comment.uid]?.displayName || "Anonymous"}
+                                    </span>
+                                  </Link>
                                   <span className="text-xs text-muted-foreground">
                                     {formatDate(comment.createdAt)}
                                   </span>

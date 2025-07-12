@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { addDoc, collection, doc, getDoc, onSnapshot, orderBy, query, serverTimestamp, updateDoc, where, writeBatch, getDocs } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, onSnapshot, orderBy, query, serverTimestamp, where, writeBatch, getDocs } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";

@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import AppNavbar from "@/components/Navbar";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import Link from "next/link";
 
 type UserData = {
   uid: string;
@@ -175,52 +176,54 @@ export default function PeoplePage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                >
-                  <Card className="p-4 transition-shadow">
-                    <div className="block sm:flex items-center justify-between">
-                      <div className="block gap-3">
-                      <div className="flex items-center gap-3 mb-4 sm:mb-0">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={userData.photoURL || "/placeholder.png"} />
-                          <AvatarFallback>
-                            {userData.displayName?.[0]?.toUpperCase() || "U"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{userData.displayName}</p>
-                          <div className="flex gap-0 mt-0">
-                            {userData.bio && (
-                            <p className="text-xs text-muted-foreground self-end">
-                              {userData.bio}
-                            </p>
-                            )}
+                  >
+                  <Link href={`/profile/${userData.uid}`}>
+                    <Card className="p-4 transition-shadow">
+                      <div className="block sm:flex items-center justify-between">
+                        <div className="block gap-3">
+                        <div className="flex items-center gap-3 mb-4 sm:mb-0">
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage src={userData.photoURL || "/placeholder.png"} />
+                            <AvatarFallback>
+                              {userData.displayName?.[0]?.toUpperCase() || "U"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{userData.displayName}</p>
+                            <div className="flex gap-0 mt-0">
+                              {userData.bio && (
+                              <p className="text-xs text-muted-foreground self-end">
+                                {userData.bio}
+                              </p>
+                              )}
+                            </div>
                           </div>
                         </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant={isFollowing(userData) ? "outline" : "default"}
+                          onClick={() => handleFollowToggle(userData)}
+                          disabled={followingLoading === userData.uid}
+                          className="sm:w-[120px] cursor-pointer w-full"
+                        >
+                          {followingLoading === userData.uid ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : isFollowing(userData) ? (
+                            <>
+                              <UserRoundCheck className="h-4 w-4 mr-1" />
+                              Following
+                            </>
+                          ) : (
+                            <>
+                              <UserRoundPlus className="h-4 w-4 mr-1" />
+                              Follow
+                            </>
+                          )}
+                        </Button>
                       </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant={isFollowing(userData) ? "outline" : "default"}
-                        onClick={() => handleFollowToggle(userData)}
-                        disabled={followingLoading === userData.uid}
-                        className="sm:w-[120px] cursor-pointer w-full"
-                      >
-                        {followingLoading === userData.uid ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : isFollowing(userData) ? (
-                          <>
-                            <UserRoundCheck className="h-4 w-4 mr-1" />
-                            Following
-                          </>
-                        ) : (
-                          <>
-                            <UserRoundPlus className="h-4 w-4 mr-1" />
-                            Follow
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </Card>
+                    </Card>
+                  </Link>
                 </motion.div>
               ))}
             </AnimatePresence>

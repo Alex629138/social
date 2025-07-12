@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AppNavbar from "@/components/Navbar";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import Link from "next/link";
 
 export default function PostPage() {
   const { postId } = useParams();
@@ -41,19 +42,23 @@ export default function PostPage() {
           <section className="grid grid-cols-1 gap-6">
             <Card className="lg:max-w-2xl w-full lg:min-w-xl border mx-auto rounded-none lg:rounded-xl border-none shadow-none">
               <CardHeader className="flex items-center gap-3 px-2 lg:px-4 py-2">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={post.photoURL || "/placeholder.png"} />
-                  <AvatarFallback>{post.displayName?.[0] || "U"}</AvatarFallback>
-                </Avatar>
-                <div className="">
-                  <h3 className="font-semibold">{post.displayName}</h3>
+                <Link href={`/profile/${post.uid}`}>
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={post.photoURL || "/placeholder.png"} />
+                    <AvatarFallback>{post.displayName?.[0] || "U"}</AvatarFallback>
+                  </Avatar>
+                </Link>
+                <div>
+                  <Link href={`/profile/${post.uid}`}>
+                    <h3 className="font-semibold">{post.displayName}</h3>
+                  </Link>
                   <p className="text-xs text-muted-foreground">
                     {post.createdAt?.toDate().toLocaleString() || "Just now"}
                   </p>
                 </div>
               </CardHeader>
               <CardContent className="px-0 lg:px-4 pb-3 space-y-3">
-                <div className="px-4 lg:px-0">
+                <div className="px-4">
                   <p>{post.content}</p>
                   {post.imageUrl && (
                     <img
@@ -72,13 +77,15 @@ export default function PostPage() {
                   {post.comments.length > 0 ? (
                     post.comments.map((comment: any, index: number) => (
                       <div key={index} className="w-full mb-4 bg-muted py-3 rounded-none lg:rounded-xl">
-                        <div className="flex items-center mb-2 flex-wrap px-2">
-                          <Avatar className="h-6 w-6 mr-2">
-                            <AvatarImage src={comment.photoURL || "/placeholder.png"} />
-                            <AvatarFallback>{comment.displayName?.[0] || "U"}</AvatarFallback>
-                          </Avatar>
-                          <p className="">{comment.displayName}</p>
-                        </div>
+                        <Link href={`/profile/${comment.uid}`}>
+                          <div className="flex items-center mb-2 px-2">
+                            <Avatar className="h-6 w-6 mr-2">
+                              <AvatarImage src={comment.photoURL || "/placeholder.png"} />
+                              <AvatarFallback>{comment.displayName?.[0] || "U"}</AvatarFallback>
+                            </Avatar>
+                            <p className="">{comment.displayName}</p>
+                          </div>
+                        </Link>
                         <div className="ml-3">
                           <p>{comment.content}</p>
                           <p className="text-xs text-muted-foreground mt-2">{comment.createdAt?.toDate().toLocaleString()}</p>
