@@ -32,20 +32,20 @@ export default function PostPage() {
   return (
     <ProtectedRoute>
       <AppNavbar />
-      <main className="pt-12 px-4 max-h-screen">
+      <main className="pt-12 lg:px-4 max-h-screen">
         {loading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
           </div>
         ) : post ? (
           <section className="grid grid-cols-1 gap-6">
-            <Card className="min-w-2xl border mx-auto shadow-lg rounded-none lg:rounded-xl">
+            <Card className="lg:max-w-2xl w-full lg:min-w-xl border mx-auto shadow-lg rounded-none lg:rounded-xl">
               <CardHeader className="flex items-center gap-3 px-6 pt-4 pb-2">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={post.photoURL || "/placeholder.png"} />
                   <AvatarFallback>{post.displayName?.[0] || "U"}</AvatarFallback>
                 </Avatar>
-                <div>
+                <div className="">
                   <h3 className="font-semibold">{post.displayName}</h3>
                   <p className="text-xs text-muted-foreground">
                     {post.createdAt?.toDate().toLocaleString() || "Just now"}
@@ -70,16 +70,16 @@ export default function PostPage() {
                   {post.comments.length > 0 ? (
                     post.comments.map((comment: any, index: number) => (
                       <div key={index} className="mb-4 bg-muted p-3 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
+                        <div className="flex items-center gap-3 mb-2 flex-wrap">
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={comment.photoURL || "/placeholder.png"} />
                             <AvatarFallback>{comment.displayName?.[0] || "U"}</AvatarFallback>
                           </Avatar>
                           <p className="">{comment.displayName}</p>
-                          <p className="text-xs text-muted-foreground">{comment.createdAt?.toDate().toLocaleString()}</p>
                         </div>
                         <div className="ml-3">
                           <p>{comment.content}</p>
+                          <p className="text-xs text-muted-foreground mt-2">{comment.createdAt?.toDate().toLocaleString()}</p>
                         </div>
                       </div>
                     ))
