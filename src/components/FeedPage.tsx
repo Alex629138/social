@@ -205,7 +205,7 @@ export default function FeedPage() {
               <section
                 key={post.id}
                 className="py-4 border rounded-none md:rounded-3xl md:mx-5shadow-sm"
-              >
+                >
                 <CardHeader className="px-6 flex items-center gap-2">
                   <div className="flex items-center justify-between flex-wrap gap-1 sm:gap-3">
                     <div className="flex gap-0 flex-wrap items-center">
@@ -248,15 +248,17 @@ export default function FeedPage() {
                 </CardHeader>
 
                 <CardContent className="py-6 space-y-3">
-                  <p className="text-sm text-foreground">{post.content}</p>
-                  
-                  {post.imageUrl && (
-                    <img
-                      src={post.imageUrl}
-                      alt="Post Image"
-                      className="rounded-md border w-fit height-fit object-fit"
-                    />
-                  )}
+                  <Link href={`/posts/${post.id}`} className="text-sm text-blue-500 hover:underline">
+                    <p className="text-sm text-foreground">{post.content}</p>
+                    
+                    {post.imageUrl && (
+                      <img
+                        src={post.imageUrl}
+                        alt="Post Image"
+                        className="rounded-md border w-fit height-fit object-fit"
+                      />
+                    )}
+                  </Link>
                   
                   <div className="flex gap-4 pt-2">
                     <Button
