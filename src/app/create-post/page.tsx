@@ -18,7 +18,7 @@ import { useUserData } from "@/hooks/useUserData";
 
 export default function Home() {
   const { user } = useAuth();
-  const { data: profileData } = useUserData(user?.uid);
+  const { data: profileData } = useUserData(user?.uid || "");
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
