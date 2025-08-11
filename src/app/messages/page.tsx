@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { doc, getDoc, getDocs, query, where, collection } from "firebase/firestore";
+import { doc, getDoc, getDocs, query, where, collection, addDoc, serverTimestamp, onSnapshot } from "firebase/firestore";
 import { firestore } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import AppNavbar from "@/components/Navbar";
@@ -12,12 +12,59 @@ import { Input } from "@/components/ui/input";
 import { Search, MessageSquare, UserPlus, MessagesSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useCallback } from "react";
 
 export default function MessagesPage() {
   const { user } = useAuth();
   const [followedUsers, setFollowedUsers] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const router = useRouter();
+  const [groupModalOpen, setGroupModalOpen] = useState(false);
+  const [groupName, setGroupName] = useState("");
+  const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
+  const [searchUser, setSearchUser] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [groupChats, setGroupChats] = useState<any[]>([]);
+
+  const handleUserSelect = (user: any) => {
+    if (!selectedUsers.find((u) => u.uid === user.uid)) {
+      setSelectedUsers([...selectedUsers, user]);
+    }
+  };
+  const handleUserRemove = (uid: string) => {
+    setSelectedUsers(selectedUsers.filter((u) => u.uid !== uid));
+  };
+  const handleGroupCreate = async () => {
+    if (!groupName || selectedUsers.length === 0 || !user) return;
+    const memberIds = [user.uid, ...selectedUsers.map(u => u.uid)];
+    await addDoc(collection(firestore, "groupChats"), {
+      name: groupName,
+      members: memberIds,
+      admins: [user.uid],
+      createdAt: serverTimestamp(),
+      createdBy: user.uid,
+      invites: selectedUsers.map(u => ({ uid: u.uid, status: "pending" }))
+    });
+    setGroupModalOpen(false);
+    setGroupName("");
+    setSelectedUsers([]);
+    setSearchUser("");
+    setSearchResults([]);
+  };
+  const handleSearchUser = useCallback(async () => {
+    if (!searchUser.trim()) return;
+    const q = query(
+      collection(firestore, "users"),
+      where("displayName", ">=", searchUser),
+      where("displayName", "<=", searchUser + '\uf8ff')
+    );
+    const snap = await getDocs(q);
+    const results = snap.docs
+      .map(doc => ({ uid: doc.id, ...doc.data() }))
+      .filter(u => u.uid !== user?.uid && !selectedUsers.find(su => su.uid === u.uid));
+    setSearchResults(results);
+  }, [searchUser, selectedUsers, user?.uid]);
 
   useEffect(() => {
     const fetchFollowedUsers = async () => {
@@ -49,6 +96,15 @@ export default function MessagesPage() {
     fetchFollowedUsers();
   }, [user]);
 
+  useEffect(() => {
+    if (!user?.uid) return;
+    const q = query(collection(firestore, "groupChats"), where("members", "array-contains", user.uid));
+    const unsub = onSnapshot(q, (snap) => {
+      setGroupChats(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsub();
+  }, [user?.uid]);
+
   const filteredUsers = followedUsers.filter((u) =>
     u.displayName?.toLowerCase().includes(search.toLowerCase())
   );
@@ -62,6 +118,91 @@ export default function MessagesPage() {
             <MessagesSquare className="mr-2 h-6 w-6" />
             Messages
           </h1>
+          <Button className="bg-yellow-500 text-black hover:bg-black hover:text-white" onClick={() => setGroupModalOpen(true)}>
+            + New Group
+          </Button>
+        </div>
+        {groupChats.length > 0 && (
+          <div className="mb-6">
+            <div className="font-semibold mb-2">Group Chats</div>
+            <div className="space-y-2">
+              {groupChats.map(gc => (
+                <Card
+                  key={gc.id}
+                  className="flex justify-center cursor-pointer border-yellow-500 border-2"
+                  onClick={() => router.push(`/messages/group/${gc.id}`)}
+                >
+                  <div className="flex items-center gap-3 px-4 py-2">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-yellow-500 text-black">{gc.name?.[0]?.toUpperCase() || "G"}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="text-md font-medium">{gc.name || "Group"}</h3>
+                      <p className="text-xs text-muted-foreground">{gc.members?.length || 0} members</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+        <Dialog open={groupModalOpen} onOpenChange={setGroupModalOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Create Group Chat</DialogTitle>
+              <DialogDescription>Invite users by username or from your following list.</DialogDescription>
+            </DialogHeader>
+            <Input
+              placeholder="Group Name"
+              className="mb-2"
+              value={groupName}
+              onChange={e => setGroupName(e.target.value)}
+            />
+            <Input
+              placeholder="Search by username..."
+              className="mb-2"
+              value={searchUser}
+              onChange={e => setSearchUser(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleSearchUser(); }}
+            />
+            <div className="mb-2">
+              <div className="font-semibold mb-1">Following</div>
+              <div className="flex flex-wrap gap-2">
+                {followedUsers.map(u => (
+                  <Button key={u.uid} size="sm" variant="outline" onClick={() => handleUserSelect(u)} disabled={!!selectedUsers.find(su => su.uid === u.uid)}>
+                    {u.displayName}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            {searchResults.length > 0 && (
+              <div className="mb-2">
+                <div className="font-semibold mb-1">Search Results</div>
+                <div className="flex flex-wrap gap-2">
+                  {searchResults.map(u => (
+                    <Button key={u.uid} size="sm" variant="outline" onClick={() => handleUserSelect(u)} disabled={!!selectedUsers.find(su => su.uid === u.uid)}>
+                      {u.displayName}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="mb-2">
+              <div className="font-semibold mb-1">Selected Members</div>
+              <div className="flex flex-wrap gap-2">
+                {selectedUsers.map(u => (
+                  <Button key={u.uid} size="sm" variant="secondary" onClick={() => handleUserRemove(u.uid)}>
+                    {u.displayName} ×
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <Button className="w-full bg-yellow-500 text-black hover:bg-black hover:text-white" onClick={handleGroupCreate} disabled={!groupName || selectedUsers.length === 0}>
+              Create Group
+            </Button>
+          </DialogContent>
+        </Dialog>
+        <div className="mb-8">
           <p className="text-muted-foreground mb-6">
             Chat with your friends
           </p>

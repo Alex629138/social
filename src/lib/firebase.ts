@@ -26,3 +26,19 @@ const provider = new GoogleAuthProvider();
   
 export { auth, db, storage, provider, firestore };
 export default app;
+
+// Firestore group chat structure:
+// Collection: groupChats
+//   - id: string (auto-generated)
+//   - name: string
+//   - members: string[] (user UIDs)
+//   - admins: string[] (user UIDs)
+//   - createdAt: Timestamp
+//   - createdBy: string (user UID)
+//   - invites: { uid: string, status: 'pending' | 'accepted' | 'declined' }[]
+//   - messages: subcollection
+//       - id: string (auto-generated)
+//       - senderId: string
+//       - text: string
+//       - createdAt: Timestamp
+//       - readBy: string[] (user UIDs)
