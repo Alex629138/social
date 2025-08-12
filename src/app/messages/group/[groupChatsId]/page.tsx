@@ -15,7 +15,7 @@ import { motion } from "framer-motion";
 
 export default function GroupChatPage() {
   const { user } = useAuth();
-  const { groupId } = useParams();
+  const { groupChatsId } = useParams();
   const [group, setGroup] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -27,38 +27,43 @@ export default function GroupChatPage() {
   }, [messages]);
 
   useEffect(() => {
-    if (!groupId) return;
+    if (!groupChatsId) return;
     const fetchGroup = async () => {
-      const docSnap = await getDoc(doc(firestore, "groupChats", groupId as string));
+      const docSnap = await getDoc(
+        doc(firestore, "groupChats", groupChatsId as string)
+      );
       if (docSnap.exists()) {
         setGroup({ id: docSnap.id, ...docSnap.data() });
       }
     };
     fetchGroup();
-  }, [groupId]);
+  }, [groupChatsId]);
 
   useEffect(() => {
-    if (!groupId) return;
+    if (!groupChatsId) return;
     const msgsQuery = query(
-      collection(firestore, "groupChats", groupId as string, "messages"),
+      collection(firestore, "groupChats", groupChatsId as string, "messages"),
       orderBy("createdAt", "asc")
     );
     const unsub = onSnapshot(msgsQuery, (snap) => {
-      setMessages(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setMessages(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
       setLoading(false);
     });
     return () => unsub();
-  }, [groupId]);
+  }, [groupChatsId]);
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !user || !groupId) return;
-    await addDoc(collection(firestore, "groupChats", groupId as string, "messages"), {
-      text: newMessage,
-      senderId: user.uid,
-      senderName: user.displayName || "User",
-      createdAt: serverTimestamp(),
-      readBy: [user.uid],
-    });
+    if (!newMessage.trim() || !user || !groupChatsId) return;
+    await addDoc(
+      collection(firestore, "groupChats", groupChatsId as string, "messages"),
+      {
+        text: newMessage,
+        senderId: user.uid,
+        senderName: user.displayName || "User",
+        createdAt: serverTimestamp(),
+        readBy: [user.uid],
+      }
+    );
     setNewMessage("");
   };
 
@@ -71,11 +76,17 @@ export default function GroupChatPage() {
         <div className="py-3 border-b mb-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
-              <AvatarFallback className="bg-yellow-500 text-black">{group?.name?.[0]?.toUpperCase() || "G"}</AvatarFallback>
+              <AvatarFallback className="bg-yellow-500 text-black">
+                {group?.name?.[0]?.toUpperCase() || "G"}
+              </AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="font-medium flex items-center gap-2">{group?.name || "Group Chat"} <Users className="h-4 w-4" /></h2>
-              <p className="text-xs text-muted-foreground">{group?.members?.length || 0} members</p>
+              <h2 className="font-medium flex items-center gap-2">
+                {group?.name || "Group Chat"} <Users className="h-4 w-4" />
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                {group?.members?.length || 0} members
+              </p>
             </div>
           </div>
         </div>
@@ -88,19 +99,28 @@ export default function GroupChatPage() {
             messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex flex-col ${msg.senderId === user.uid ? "items-end" : "items-start"} mb-3 overflow-hidden`}
+                className={`flex flex-col ${
+                  msg.senderId === user.uid ? "items-end" : "items-start"
+                } mb-3 overflow-hidden`}
               >
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ type: "spring", stiffness: 500, damping: 10 }}
-                  className={`max-w-xs px-4 py-3 rounded-xl ${msg.senderId === user.uid ? "bg-primary text-primary-foreground rounded-tr-none" : "bg-yellow-500 text-black rounded-tl-none"}`}
+                  className={`max-w-xs px-4 py-3 rounded-xl ${
+                    msg.senderId === user.uid
+                      ? "bg-primary text-primary-foreground rounded-tr-none"
+                      : "bg-yellow-500 text-black rounded-tl-none"
+                  }`}
                 >
                   <p className="text-xs font-semibold mb-1">{msg.senderName}</p>
                   <p className="text-sm">{msg.text}</p>
                 </motion.div>
                 <p className="text-[0.6rem] mt-1 text-muted-foreground">
-                  {msg.createdAt?.toDate().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  {msg.createdAt?.toDate().toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </p>
               </div>
             ))
@@ -111,8 +131,8 @@ export default function GroupChatPage() {
           <Input
             placeholder="Type your message..."
             value={newMessage}
-            onChange={e => setNewMessage(e.target.value)}
-            onKeyDown={e => {
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
@@ -133,3 +153,5 @@ export default function GroupChatPage() {
     </ProtectedRoute>
   );
 }
+
+

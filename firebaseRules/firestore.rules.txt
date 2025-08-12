@@ -1,0 +1,100 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return isSignedIn() ? request.auth.uid : null;
+    }
+
+    function isGroupMember(groupId) {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/groupChats/$(groupId)).data.members.hasAny([uid()]);
+    }
+
+    function isGroupAdmin(groupId) {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/groupChats/$(groupId)).data.admins.hasAny([uid()]);
+    }
+
+    // Users profile docs
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.id == uid();
+      allow update: if isSignedIn() && userId == uid();
+      allow delete: if false;
+    }
+
+    // One-to-one messages stored at root: /messages/{messageId}
+    match /messages/{messageId} {
+      allow read: if isSignedIn() && (
+        resource.data.senderId == uid() || resource.data.recipientId == uid()
+      );
+
+      allow create: if isSignedIn()
+        && request.resource.data.senderId == uid()
+        && request.resource.data.recipientId is string
+        && request.resource.data.text is string
+        && (request.resource.data.createdAt is timestamp || request.resource.data.createdAt == request.time)
+        && request.resource.data.read is bool;
+
+      // Only allow recipient to toggle read flag; no other field changes
+      allow update: if isSignedIn()
+        && resource.data.recipientId == uid()
+        && request.resource.data.diff(resource.data).changedKeys().size() == 1
+        && request.resource.data.diff(resource.data).changedKeys().hasAll(['read'])
+        && request.resource.data.read is bool;
+
+      allow delete: if false;
+    }
+
+    // Group chats: /groupChats/{groupId} and subcollection /messages
+    match /groupChats/{groupId} {
+      allow read: if isGroupMember(groupId);
+
+      // Group creation: creator must include themselves in members and admins
+      allow create: if isSignedIn()
+        && request.resource.data.name is string
+        && request.resource.data.members is list
+        && request.resource.data.admins is list
+        && request.resource.data.createdBy == uid()
+        && request.resource.data.members.hasAny([uid()])
+        && request.resource.data.admins.hasAny([uid()])
+        && (request.resource.data.createdAt is timestamp || request.resource.data.createdAt == request.time);
+
+      // Only admins can update group metadata (e.g., name, members, admins)
+      allow update: if isGroupAdmin(groupId);
+
+      allow delete: if false;
+
+      // Group messages subcollection
+      match /messages/{messageId} {
+        allow read: if isGroupMember(groupId);
+
+        // Only group members can post; enforce required fields
+        allow create: if isGroupMember(groupId)
+          && request.resource.data.senderId == uid()
+          && request.resource.data.text is string
+          && (request.resource.data.createdAt is timestamp || request.resource.data.createdAt == request.time)
+          && request.resource.data.readBy is list;
+
+        // Only allow adding caller's uid to readBy; no other field changes
+        allow update: if isGroupMember(groupId)
+          && request.resource.data.readBy is list
+          && request.resource.data.diff(resource.data).changedKeys().size() == 1
+          && request.resource.data.diff(resource.data).changedKeys().hasAll(['readBy'])
+          && !(uid() in resource.data.readBy)
+          && (uid() in request.resource.data.readBy)
+          && request.resource.data.readBy.size() >= resource.data.readBy.size();
+
+        allow delete: if false;
+      }
+    }
+  }
+}
+
+
+ 
