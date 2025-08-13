@@ -20,6 +20,7 @@ export default function GroupChatPage() {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,44 +28,61 @@ export default function GroupChatPage() {
   }, [messages]);
 
   useEffect(() => {
-    if (!groupChatsId) return;
+    if (!groupChatsId || !user?.uid) return;
     const fetchGroup = async () => {
-      const docSnap = await getDoc(
-        doc(firestore, "groupChats", groupChatsId as string)
-      );
-      if (docSnap.exists()) {
-        setGroup({ id: docSnap.id, ...docSnap.data() });
+      try {
+        const docSnap = await getDoc(
+          doc(firestore, "groupChats", groupChatsId as string)
+        );
+        if (docSnap.exists()) {
+          setGroup({ id: docSnap.id, ...docSnap.data() });
+        } else {
+          setError("Group not found");
+        }
+      } catch (e: any) {
+        setError(e?.message || "Failed to load group");
       }
     };
     fetchGroup();
-  }, [groupChatsId]);
+  }, [groupChatsId, user?.uid]);
 
   useEffect(() => {
-    if (!groupChatsId) return;
+    if (!groupChatsId || !user?.uid) return;
     const msgsQuery = query(
       collection(firestore, "groupChats", groupChatsId as string, "messages"),
       orderBy("createdAt", "asc")
     );
-    const unsub = onSnapshot(msgsQuery, (snap) => {
-      setMessages(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      msgsQuery,
+      (snap) => {
+        setMessages(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+        setLoading(false);
+      },
+      (err) => {
+        setError(err?.message || "Failed to load messages");
+        setLoading(false);
+      }
+    );
     return () => unsub();
-  }, [groupChatsId]);
+  }, [groupChatsId, user?.uid]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !user || !groupChatsId) return;
-    await addDoc(
-      collection(firestore, "groupChats", groupChatsId as string, "messages"),
-      {
-        text: newMessage,
-        senderId: user.uid,
-        senderName: user.displayName || "User",
-        createdAt: serverTimestamp(),
-        readBy: [user.uid],
-      }
-    );
-    setNewMessage("");
+    try {
+      await addDoc(
+        collection(firestore, "groupChats", groupChatsId as string, "messages"),
+        {
+          text: newMessage,
+          senderId: user.uid,
+          senderName: user.displayName || "User",
+          createdAt: serverTimestamp(),
+          readBy: [user.uid],
+        }
+      );
+      setNewMessage("");
+    } catch (e: any) {
+      setError(e?.message || "Failed to send message");
+    }
   };
 
   if (!user) return null;
@@ -91,6 +109,9 @@ export default function GroupChatPage() {
           </div>
         </div>
         <div className="flex-1 space-y-4 overflow-y-auto pb-4">
+          {error && (
+            <div className="text-red-600 text-sm">{error}</div>
+          )}
           {loading ? (
             <div className="flex justify-center py-12">
               <Loader2 className="animate-spin w-6 h-6 text-muted-foreground" />
