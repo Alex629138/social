@@ -169,7 +169,7 @@ export default function SignupPage() {
               ) : (
                 <>
                   <BsGoogle className="text-3xl mb-1"/>
-                  <span className="text-sm font-medium">&apos;Google&apos;</span>
+                  <span className="text-sm font-medium">Google</span>
                 </>
               )}
             </motion.button>
@@ -211,7 +211,7 @@ export default function SignupPage() {
               ) : (
                 <>
                   <BsTwitterX className="text-3xl mb-1"/>
-                  <span className="text-sm font-medium">&apos;Twitter/X&apos;</span>
+                  <span className="text-sm font-medium">Twitter/X</span>
                 </>
               )}
             </motion.button>
@@ -253,7 +253,7 @@ export default function SignupPage() {
               ) : (
                 <>
                   <BsMicrosoft className="text-3xl mb-1"/>
-                  <span className="text-sm font-medium">&apos;Microsoft&apos;</span>
+                  <span className="text-sm font-medium">Microsoft</span>
                 </>
               )}
             </motion.button>

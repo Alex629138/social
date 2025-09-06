@@ -206,7 +206,7 @@ export default function HomePage() {
         transition={{ duration: 0.7, delay: 1.2, type: "spring" }}
       >
         <p className="text-lg text-black leading-relaxed">
-          Our team is crafting something amazing. We'll be back with a better experience very soon!
+          Our team is crafting something amazing. We&apos;ll be back with a better experience very soon!
         </p>
         
         {/* Progress bar animation */}
