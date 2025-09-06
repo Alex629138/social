@@ -48,11 +48,11 @@ export default function LegalPage() {
       content: [
         {
           title: "1. Acceptance of Terms",
-          text: "By using FeedLink, you agree to these Terms of Service and our Privacy Policy. If you don't agree, please don't use our services."
+          text: "By using FeedLink, you agree to these Terms of Service and our Privacy Policy. If you don&apos;t agree, please don&apos;t use our services."
         },
         {
           title: "2. User Responsibilities",
-          text: "You're responsible for all content you post and activity that occurs under your account. Keep your account secure and notify us immediately of any unauthorized use."
+          text: "You&apos;re responsible for all content you post and activity that occurs under your account. Keep your account secure and notify us immediately of any unauthorized use."
         },
         {
           title: "3. Content Ownership",
@@ -70,7 +70,7 @@ export default function LegalPage() {
         },
         {
           title: "2. How We Use Information",
-          text: "We use your information to provide and improve our services, personalize content, and communicate with you. We don't sell your personal data to third parties."
+          text: "We use your information to provide and improve our services, personalize content, and communicate with you. We don&apos;t sell your personal data to third parties."
         },
         {
           title: "3. Data Security",
